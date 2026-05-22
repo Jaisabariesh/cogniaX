@@ -1,0 +1,30 @@
+
+Running 20 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/cognia.spec.js:13:1 › 1 · Login page renders correctly (7.1s)
+  ✓   2 [chromium] › tests/e2e/cognia.spec.js:20:1 › 2 · Login form has email and password inputs (3.1s)
+  ✓   3 [chromium] › tests/e2e/cognia.spec.js:27:1 › 3 · Sign In button is visible (1.9s)
+  ✓   4 [chromium] › tests/e2e/cognia.spec.js:33:1 › 4 · Toggle to sign-up panel shows "Getting started!" (2.0s)
+  ✓   5 [chromium] › tests/e2e/cognia.spec.js:41:1 › 5 · Toggling back from signup shows login again (3.7s)
+  ✓   6 [chromium] › tests/e2e/cognia.spec.js:49:1 › 6 · Clicking Sign In with empty fields stays on login page (2.1s)
+  ✓   7 [chromium] › tests/e2e/cognia.spec.js:60:1 › 7 · Protected route redirects to /login if unauthenticated (2.6s)
+  ✓   8 [chromium] › tests/e2e/cognia.spec.js:68:1 › 8 · Login page contains "Hello Again!" greeting (1.9s)
+  ✓   9 [chromium] › tests/e2e/cognia.spec.js:74:1 › 9 · Decorative animated panel exists on login page (2.5s)
+  ✓  10 [chromium] › tests/e2e/cognia.spec.js:81:1 › 10 · Password field is type=password (not plain text) (2.0s)
+  ✓  11 [chromium] › tests/e2e/cognia.spec.js:90:1 › 11 · Signup form fields are separate from login fields (3.1s)
+  ✓  12 [chromium] › tests/e2e/cognia.spec.js:100:1 › 12 · Login page is usable on mobile viewport (375px) (3.5s)
+  ✓  13 [chromium] › tests/e2e/cognia.spec.js:108:1 › 13 · Login page is usable on wide desktop (1440px) (2.6s)
+  ✓  14 [chromium] › tests/e2e/cognia.spec.js:116:1 › 14 · No critical JS errors thrown on login page load (1.8s)
+  ✓  15 [chromium] › tests/e2e/cognia.spec.js:130:1 › 15 · User can type into email and password fields (2.2s)
+  ✓  16 [chromium] › tests/e2e/cognia.spec.js:141:1 › 16 · User can type into signup email and password fields (3.1s)
+  ✓  17 [chromium] › tests/e2e/cognia.spec.js:153:1 › 17 · Page has a non-empty browser title (SEO) (2.1s)
+  ✓  18 [chromium] › tests/e2e/cognia.spec.js:160:1 › 18 · Animated panel gets "move-right" class on signup toggle (2.1s)
+  ✓  19 [chromium] › tests/e2e/cognia.spec.js:173:1 › 19 · Tab key navigates between form fields naturally (1.9s)
+  ✓  20 [chromium] › tests/e2e/cognia.spec.js:183:1 › 20 · Login page has no unintended horizontal scroll (1.9s)
+
+  20 passed (55.9s)
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report[39m
+[36m[39m

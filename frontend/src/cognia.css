@@ -1,0 +1,82 @@
+.app-container {
+  display: flex;
+  height: 100vh;       /* full viewport height */
+  overflow: hidden;    /* prevent outer scroll */
+}
+
+.sidebar {
+  width: 200px;        /* fixed width for sidebar */
+  background: #0b0a0a;
+  /* keep sidebar fixed height, no scroll */
+}
+
+.main-content {
+  flex: 1;             /* take remaining width */
+  overflow-y: auto;    /* enable vertical scrolling here */
+  height: 100vh;       /* fill viewport height */
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* keep your existing styles for blocks */
+.block-wrapper {
+  margin-left: 139.01px;
+  margin-right: 139.01px;
+  padding: 8px 12px;
+  transition: background 0.2s;
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  border: none;
+}
+
+.block-content {
+  flex: 1;
+}
+
+.block-wrapper:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.plus-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-top: 4px;
+}
+.main-content > .editor-root {
+  height: 100%;        /* fill main-content height */
+  width: 100%;
+  overflow-y: auto;    /* scroll inside the editor container */
+}
+
+/* Keep block-wrapper styles as they are */
+.block-wrapper {
+  margin-left: 139.01px;
+  margin-right: 139.01px;
+  padding: 8px 12px;
+  transition: background 0.2s;
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  border: none;
+}
+
+.block-content {
+  flex: 1;
+}
+
+.block-wrapper:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.plus-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-top: 4px;
+}

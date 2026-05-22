@@ -1,0 +1,17 @@
+[
+  {
+    "table_name": "notes"
+  },
+  {
+    "table_name": "folders"
+  },
+  {
+    "table_name": "users"
+  },
+  {
+    "table_name": "vaults"
+  },
+  {
+    "table_name": "credit_transactions"
+  }
+]

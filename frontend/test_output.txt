@@ -1,0 +1,1469 @@
+
+Running 20 tests using 1 worker
+
+  ✘   1 [chromium] › tests/e2e/cognia.spec.js:13:1 › 1 · Login page renders correctly (201ms)
+  ✘   2 [chromium] › tests/e2e/cognia.spec.js:13:1 › 1 · Login page renders correctly (retry #1) (209ms)
+  ✘   3 [chromium] › tests/e2e/cognia.spec.js:20:1 › 2 · Login form has email and password inputs (207ms)
+  ✘   4 [chromium] › tests/e2e/cognia.spec.js:20:1 › 2 · Login form has email and password inputs (retry #1) (224ms)
+  ✘   5 [chromium] › tests/e2e/cognia.spec.js:27:1 › 3 · Sign In button is visible (210ms)
+  ✘   6 [chromium] › tests/e2e/cognia.spec.js:27:1 › 3 · Sign In button is visible (retry #1) (218ms)
+  ✘   7 [chromium] › tests/e2e/cognia.spec.js:33:1 › 4 · Toggle to sign-up panel shows "Getting started!" (216ms)
+  ✘   8 [chromium] › tests/e2e/cognia.spec.js:33:1 › 4 · Toggle to sign-up panel shows "Getting started!" (retry #1) (208ms)
+  ✘   9 [chromium] › tests/e2e/cognia.spec.js:41:1 › 5 · Toggling back from signup shows login again (209ms)
+  ✘  10 [chromium] › tests/e2e/cognia.spec.js:41:1 › 5 · Toggling back from signup shows login again (retry #1) (213ms)
+  ✘  11 [chromium] › tests/e2e/cognia.spec.js:49:1 › 6 · Clicking Sign In with empty fields stays on login page (228ms)
+  ✘  12 [chromium] › tests/e2e/cognia.spec.js:49:1 › 6 · Clicking Sign In with empty fields stays on login page (retry #1) (214ms)
+  ✘  13 [chromium] › tests/e2e/cognia.spec.js:60:1 › 7 · Root URL redirects to /login (210ms)
+  ✘  14 [chromium] › tests/e2e/cognia.spec.js:60:1 › 7 · Root URL redirects to /login (retry #1) (216ms)
+  ✘  15 [chromium] › tests/e2e/cognia.spec.js:70:1 › 8 · Login page contains COGNIA brand identity (242ms)
+  ✘  16 [chromium] › tests/e2e/cognia.spec.js:70:1 › 8 · Login page contains COGNIA brand identity (retry #1) (205ms)
+  ✘  17 [chromium] › tests/e2e/cognia.spec.js:77:1 › 9 · Decorative animated panel exists on login page (214ms)
+  ✘  18 [chromium] › tests/e2e/cognia.spec.js:77:1 › 9 · Decorative animated panel exists on login page (retry #1) (237ms)
+  ✘  19 [chromium] › tests/e2e/cognia.spec.js:84:1 › 10 · Password field is type=password (not plain text) (207ms)
+  ✘  20 [chromium] › tests/e2e/cognia.spec.js:84:1 › 10 · Password field is type=password (not plain text) (retry #1) (221ms)
+  ✘  21 [chromium] › tests/e2e/cognia.spec.js:93:1 › 11 · Signup form fields are separate from login fields (221ms)
+  ✘  22 [chromium] › tests/e2e/cognia.spec.js:93:1 › 11 · Signup form fields are separate from login fields (retry #1) (217ms)
+  ✘  23 [chromium] › tests/e2e/cognia.spec.js:103:1 › 12 · Login page is usable on mobile viewport (375px) (219ms)
+  ✘  24 [chromium] › tests/e2e/cognia.spec.js:103:1 › 12 · Login page is usable on mobile viewport (375px) (retry #1) (206ms)
+  ✘  25 [chromium] › tests/e2e/cognia.spec.js:111:1 › 13 · Login page is usable on wide desktop (1440px) (234ms)
+  ✘  26 [chromium] › tests/e2e/cognia.spec.js:111:1 › 13 · Login page is usable on wide desktop (1440px) (retry #1) (218ms)
+  ✘  27 [chromium] › tests/e2e/cognia.spec.js:119:1 › 14 · No critical JS errors thrown on login page load (271ms)
+  ✘  28 [chromium] › tests/e2e/cognia.spec.js:119:1 › 14 · No critical JS errors thrown on login page load (retry #1) (205ms)
+  ✘  29 [chromium] › tests/e2e/cognia.spec.js:133:1 › 15 · User can type into email and password fields (212ms)
+  ✘  30 [chromium] › tests/e2e/cognia.spec.js:133:1 › 15 · User can type into email and password fields (retry #1) (234ms)
+  ✘  31 [chromium] › tests/e2e/cognia.spec.js:144:1 › 16 · User can type into signup email and password fields (211ms)
+  ✘  32 [chromium] › tests/e2e/cognia.spec.js:144:1 › 16 · User can type into signup email and password fields (retry #1) (218ms)
+  ✘  33 [chromium] › tests/e2e/cognia.spec.js:156:1 › 17 · Page has a non-empty browser title (SEO) (210ms)
+  ✘  34 [chromium] › tests/e2e/cognia.spec.js:156:1 › 17 · Page has a non-empty browser title (SEO) (retry #1) (242ms)
+  ✘  35 [chromium] › tests/e2e/cognia.spec.js:163:1 › 18 · Animated panel gets "move-right" class on signup toggle (207ms)
+  ✘  36 [chromium] › tests/e2e/cognia.spec.js:163:1 › 18 · Animated panel gets "move-right" class on signup toggle (retry #1) (222ms)
+  ✘  37 [chromium] › tests/e2e/cognia.spec.js:176:1 › 19 · Tab key navigates between form fields naturally (198ms)
+  ✘  38 [chromium] › tests/e2e/cognia.spec.js:176:1 › 19 · Tab key navigates between form fields naturally (retry #1) (220ms)
+  ✘  39 [chromium] › tests/e2e/cognia.spec.js:186:1 › 20 · Login page has no unintended horizontal scroll (219ms)
+  ✘  40 [chromium] › tests/e2e/cognia.spec.js:186:1 › 20 · Login page has no unintended horizontal scroll (retry #1) (217ms)
+
+
+  1) [chromium] › tests/e2e/cognia.spec.js:13:1 › 1 · Login page renders correctly ─────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:14:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-1-·-Login-page-renders-correctly-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-1-·-Login-page-renders-correctly-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-1-·-Login-page-renders-correctly-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-1-·-Login-page-renders-correctly-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-1-·-Login-page-renders-correctly-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:14:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-1-·-Login-page-renders-correctly-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-1-·-Login-page-renders-correctly-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-1-·-Login-page-renders-correctly-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-1-·-Login-page-renders-correctly-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-1-·-Login-page-renders-correctly-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/cognia.spec.js:20:1 › 2 · Login form has email and password inputs ─────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:21:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:21:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-2-·-Login-form-has-email-and-password-inputs-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/cognia.spec.js:27:1 › 3 · Sign In button is visible ────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:28:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-3-·-Sign-In-button-is-visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-3-·-Sign-In-button-is-visible-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-3-·-Sign-In-button-is-visible-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-3-·-Sign-In-button-is-visible-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-3-·-Sign-In-button-is-visible-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:28:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-3-·-Sign-In-button-is-visible-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-3-·-Sign-In-button-is-visible-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-3-·-Sign-In-button-is-visible-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-3-·-Sign-In-button-is-visible-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-3-·-Sign-In-button-is-visible-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests/e2e/cognia.spec.js:33:1 › 4 · Toggle to sign-up panel shows "Getting started!" 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:34:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:34:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-4-·-Toggle-to-sign-up-panel-shows-Getting-started--chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests/e2e/cognia.spec.js:41:1 › 5 · Toggling back from signup shows login again ──
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:42:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:42:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-5-·-Toggling-back-from-signup-shows-login-again-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › tests/e2e/cognia.spec.js:49:1 › 6 · Clicking Sign In with empty fields stays on login page 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:50:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:50:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-6-·-Clicking-Sign-I-05ce5--fields-stays-on-login-page-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › tests/e2e/cognia.spec.js:60:1 › 7 · Root URL redirects to /login ─────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/
+    Call log:
+    [2m  - navigating to "http://localhost:5173/", waiting until "networkidle"[22m
+
+
+      59 | // ─── 7. Root route "/" redirects to /login ────────────────────────────────────
+      60 | test('7 · Root URL redirects to /login', async ({ page }) => {
+    > 61 |   await page.goto(BASE + '/', { waitUntil: 'networkidle' });
+         |              ^
+      62 |   // Should either redirect to /login or show login content
+      63 |   const url = page.url();
+      64 |   const hasLoginContent = url.includes('login') ||
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:61:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-7-·-Root-URL-redirects-to-login-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-7-·-Root-URL-redirects-to-login-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-7-·-Root-URL-redirects-to-login-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-7-·-Root-URL-redirects-to-login-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-7-·-Root-URL-redirects-to-login-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/
+    Call log:
+    [2m  - navigating to "http://localhost:5173/", waiting until "networkidle"[22m
+
+
+      59 | // ─── 7. Root route "/" redirects to /login ────────────────────────────────────
+      60 | test('7 · Root URL redirects to /login', async ({ page }) => {
+    > 61 |   await page.goto(BASE + '/', { waitUntil: 'networkidle' });
+         |              ^
+      62 |   // Should either redirect to /login or show login content
+      63 |   const url = page.url();
+      64 |   const hasLoginContent = url.includes('login') ||
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:61:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-7-·-Root-URL-redirects-to-login-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-7-·-Root-URL-redirects-to-login-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-7-·-Root-URL-redirects-to-login-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-7-·-Root-URL-redirects-to-login-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-7-·-Root-URL-redirects-to-login-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium] › tests/e2e/cognia.spec.js:70:1 › 8 · Login page contains COGNIA brand identity ────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:71:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:71:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-8-·-Login-page-contains-COGNIA-brand-identity-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium] › tests/e2e/cognia.spec.js:77:1 › 9 · Decorative animated panel exists on login page 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:78:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:78:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-9-·-Decorative-animated-panel-exists-on-login-page-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium] › tests/e2e/cognia.spec.js:84:1 › 10 · Password field is type=password (not plain text) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:85:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:85:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-10-·-Password-field-is-type-password-not-plain-text--chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [chromium] › tests/e2e/cognia.spec.js:93:1 › 11 · Signup form fields are separate from login fields 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:94:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:94:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-11-·-Signup-form-fi-5a018--separate-from-login-fields-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [chromium] › tests/e2e/cognia.spec.js:103:1 › 12 · Login page is usable on mobile viewport (375px) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:105:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:105:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-12-·-Login-page-is-usable-on-mobile-viewport-375px--chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [chromium] › tests/e2e/cognia.spec.js:111:1 › 13 · Login page is usable on wide desktop (1440px) 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:113:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:113:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-13-·-Login-page-is-usable-on-wide-desktop-1440px--chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [chromium] › tests/e2e/cognia.spec.js:119:1 › 14 · No critical JS errors thrown on login page load 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:122:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:122:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-14-·-No-critical-JS-errors-thrown-on-login-page-load-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [chromium] › tests/e2e/cognia.spec.js:133:1 › 15 · User can type into email and password fields 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:134:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:134:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-15-·-User-can-type-into-email-and-password-fields-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [chromium] › tests/e2e/cognia.spec.js:144:1 › 16 · User can type into signup email and password fields 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:145:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:145:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-16-·-User-can-type--cbc23-p-email-and-password-fields-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [chromium] › tests/e2e/cognia.spec.js:156:1 › 17 · Page has a non-empty browser title (SEO) ──
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:157:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:157:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-17-·-Page-has-a-non-empty-browser-title-SEO--chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [chromium] › tests/e2e/cognia.spec.js:163:1 › 18 · Animated panel gets "move-right" class on signup toggle 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:164:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:164:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-18-·-Animated-panel-2c1bb-ight-class-on-signup-toggle-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [chromium] › tests/e2e/cognia.spec.js:176:1 › 19 · Tab key navigates between form fields naturally 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:177:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:177:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-19-·-Tab-key-navigates-between-form-fields-naturally-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [chromium] › tests/e2e/cognia.spec.js:186:1 › 20 · Login page has no unintended horizontal scroll 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:188:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5173/login
+    Call log:
+    [2m  - navigating to "http://localhost:5173/login", waiting until "networkidle"[22m
+
+
+       7 | // Helper: navigate to login page and assert page loads correctly
+       8 | async function goToLogin(page) {
+    >  9 |   await page.goto(LOGIN, { waitUntil: 'networkidle' });
+         |              ^
+      10 | }
+      11 |
+      12 | // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
+        at goToLogin (/home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:9:14)
+        at /home/jaisabariesh/Downloads/COGNIA/frontend/tests/e2e/cognia.spec.js:188:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/cognia-20-·-Login-page-has-no-unintended-horizontal-scroll-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20 failed
+    [chromium] › tests/e2e/cognia.spec.js:13:1 › 1 · Login page renders correctly ──────────────────
+    [chromium] › tests/e2e/cognia.spec.js:20:1 › 2 · Login form has email and password inputs ──────
+    [chromium] › tests/e2e/cognia.spec.js:27:1 › 3 · Sign In button is visible ─────────────────────
+    [chromium] › tests/e2e/cognia.spec.js:33:1 › 4 · Toggle to sign-up panel shows "Getting started!" 
+    [chromium] › tests/e2e/cognia.spec.js:41:1 › 5 · Toggling back from signup shows login again ───
+    [chromium] › tests/e2e/cognia.spec.js:49:1 › 6 · Clicking Sign In with empty fields stays on login page 
+    [chromium] › tests/e2e/cognia.spec.js:60:1 › 7 · Root URL redirects to /login ──────────────────
+    [chromium] › tests/e2e/cognia.spec.js:70:1 › 8 · Login page contains COGNIA brand identity ─────
+    [chromium] › tests/e2e/cognia.spec.js:77:1 › 9 · Decorative animated panel exists on login page 
+    [chromium] › tests/e2e/cognia.spec.js:84:1 › 10 · Password field is type=password (not plain text) 
+    [chromium] › tests/e2e/cognia.spec.js:93:1 › 11 · Signup form fields are separate from login fields 
+    [chromium] › tests/e2e/cognia.spec.js:103:1 › 12 · Login page is usable on mobile viewport (375px) 
+    [chromium] › tests/e2e/cognia.spec.js:111:1 › 13 · Login page is usable on wide desktop (1440px) 
+    [chromium] › tests/e2e/cognia.spec.js:119:1 › 14 · No critical JS errors thrown on login page load 
+    [chromium] › tests/e2e/cognia.spec.js:133:1 › 15 · User can type into email and password fields 
+    [chromium] › tests/e2e/cognia.spec.js:144:1 › 16 · User can type into signup email and password fields 
+    [chromium] › tests/e2e/cognia.spec.js:156:1 › 17 · Page has a non-empty browser title (SEO) ────
+    [chromium] › tests/e2e/cognia.spec.js:163:1 › 18 · Animated panel gets "move-right" class on signup toggle 
+    [chromium] › tests/e2e/cognia.spec.js:176:1 › 19 · Tab key navigates between form fields naturally 
+    [chromium] › tests/e2e/cognia.spec.js:186:1 › 20 · Login page has no unintended horizontal scroll 
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report[39m
+[36m[39m
