@@ -6,7 +6,7 @@
 
 .sidebar {
   width: 200px;        /* fixed width for sidebar */
-  background: #0b0a0a;
+  background: #da1f1f;
   /* keep sidebar fixed height, no scroll */
 }
 
@@ -70,7 +70,7 @@
 }
 
 .block-wrapper:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(148, 18, 18, 0.03);
 }
 
 .plus-button {
