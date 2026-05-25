@@ -12,9 +12,17 @@ const migrationQuery = `
 -- Users Table
 CREATE TABLE IF NOT EXISTS users (
     uid TEXT PRIMARY KEY,
-    credits INTEGER DEFAULT 50,
+    credits NUMERIC(10,4) DEFAULT 50.0000,
     last_credit_reset TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Upgrade existing credits column if it's integer
+DO $$ 
+BEGIN 
+    IF (SELECT data_type FROM information_schema.columns WHERE table_name='users' AND column_name='credits') = 'integer' THEN
+        ALTER TABLE users ALTER COLUMN credits TYPE NUMERIC(10,4);
+    END IF;
+END $$;
 
 -- Vaults Table
 CREATE TABLE IF NOT EXISTS vaults (

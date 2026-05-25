@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { EditorContent, useEditor } from '@tiptap/react';
 
 // Core Tiptap Extensions
@@ -245,10 +246,13 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent }) => {
     try {
       const llmSource = tiptapToLLM(selectedNoteContent);
       const llmRecall = tiptapToLLM(focusEditor.getJSON());
+      const token = Cookies.get('sb-access-token');
       const response = await axios.post('http://localhost:3000/evaluate-session', {
         originalText: JSON.stringify(llmSource, null, 2),
         recallText: JSON.stringify(llmRecall, null, 2),
         mode: activeMode
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       setEvaluationResults(response.data);
     } catch (err) {

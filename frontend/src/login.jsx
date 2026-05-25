@@ -23,7 +23,7 @@ const Login = () => {
   };
 
   // ✅ On initial load, try to restore session
-  useRef(() => {
+  useEffect(() => {
     const restoreSession = async () => {
       const access_token = Cookies.get('sb-access-token');
       const refresh_token = Cookies.get('sb-refresh-token');

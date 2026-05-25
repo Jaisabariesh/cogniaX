@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import './VaultHome.css';
 
 const VaultHome = () => {
@@ -12,7 +13,10 @@ const VaultHome = () => {
 
     const fetchVaults = useCallback(async () => {
         try {
-            const res = await axios.get(`http://localhost:3000/vaults/${uid}`);
+            const token = Cookies.get('sb-access-token');
+            const res = await axios.get(`http://localhost:3000/vaults/${uid}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             setVaults(res.data);
         } catch (err) {
             console.error('Failed to fetch vaults:', err);
@@ -25,7 +29,11 @@ const VaultHome = () => {
         e.preventDefault();
         if (!newVaultName.trim()) return;
         try {
-            const res = await axios.post(`http://localhost:3000/vaults/${uid}`, { name: newVaultName });
+            const token = Cookies.get('sb-access-token');
+            const res = await axios.post(`http://localhost:3000/vaults/${uid}`, 
+                { name: newVaultName },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             setVaults([res.data, ...vaults]);
             setNewVaultName('');
         } catch (err) {

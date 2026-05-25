@@ -1,9 +1,30 @@
+console.log('🔥 Server script starting...');
 const express = require('express');
 const { Pool } = require('pg');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-require('dotenv').config({ path: '../.env' });
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { createClient } = require('@supabase/supabase-js');
+const crypto = require('crypto');
+const Razorpay = require('razorpay');
+
+const razorpay = new Razorpay({
+  key_id: (process.env.RAZORPAY_KEY_ID || '').trim(),
+  key_secret: (process.env.RAZORPAY_KEY_SECRET || '').trim(),
+});
+
+// Runtime Env Validation
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  console.error('❌ CRITICAL: Razorpay keys missing in .env!');
+} else {
+  console.log('💳 Razorpay Key ID:', `${process.env.RAZORPAY_KEY_ID.slice(0, 8)}... (Length: ${process.env.RAZORPAY_KEY_ID.length})`);
+  console.log('💳 Razorpay Secret:', `**** (Length: ${process.env.RAZORPAY_KEY_SECRET.length})`);
+}
+
+// Order Tracking (Strict Lifecycle)
+const activeOrders = new Map();
 
 const app = express();
 const port = 3000;
@@ -30,11 +51,64 @@ pool.connect((err, client, release) => {
   release();
 });
 
-// ✅ REQUIRED: Handle idle client errors — without this, any pg error
-// on an idle connection emits an unhandled 'error' event and crashes Node.
+// ✅ REQUIRED: Handle idle client errors
 pool.on('error', (err) => {
   console.error('❌ Unexpected PostgreSQL pool error:', err.message);
 });
+
+// --- Supabase Client Init (for Auth) ---
+// Node.js < 22 requires "ws" for Supabase Realtime
+const ws = require('ws');
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY,
+  {
+    auth: { persistSession: false },
+    realtime: { transport: ws }
+  }
+);
+
+// --- Auth Middleware ---
+async function authenticateUser(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'Missing Authorization header' });
+
+  const token = authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Invalid token format' });
+
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+      console.warn(`🔓 Auth failed: ${error?.message || 'No user found'}`);
+      return res.status(401).json({ error: 'Unauthorized', details: error?.message });
+    }
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Auth error' });
+  }
+}
+
+// --- Token & Credit Helpers ---
+const calculateTokens = (text) => Math.ceil((text || '').length / 4);
+const getEffectiveTokens = (tokens) => tokens * 1.1;
+
+const calculateCost = (inputChars, outputChars) => {
+  const inputTokens = getEffectiveTokens(calculateTokens(inputChars));
+  const outputTokens = getEffectiveTokens(calculateTokens(outputChars));
+
+  const inputCost = inputTokens / 2000;
+  const outputCost = outputTokens / 100;
+
+  return {
+    inputCost,
+    outputCost,
+    totalCost: inputCost + outputCost,
+    inputTokens,
+    outputTokens
+  };
+};
 
 // Catch any other unhandled errors so the server never silently crashes
 process.on('uncaughtException', (err) => {
@@ -76,12 +150,12 @@ async function getOrInitUser(uid) {
 }
 
 // User & Credits Endpoints
-app.get('/user/:uid', async (req, res) => {
+app.get('/user/me', authenticateUser, async (req, res) => {
   try {
-    const user = await getOrInitUser(req.params.uid);
+    const user = await getOrInitUser(req.user.id);
     res.json(user);
   } catch (err) {
-    console.error(`❌ GET /user/${req.params.uid} error:`, err);
+    console.error(`❌ GET /user/me error:`, err);
     res.status(500).json({ error: 'Failed to sync user', details: err.message });
   }
 });
@@ -105,7 +179,7 @@ app.post('/use-credit/:uid', async (req, res) => {
 });
 
 // Vaults Endpoints
-app.get('/vaults/:uid', async (req, res) => {
+app.get('/vaults/:uid', authenticateUser, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM vaults WHERE uid = $1 ORDER BY created DESC', [req.params.uid]);
     res.json(result.rows);
@@ -115,7 +189,7 @@ app.get('/vaults/:uid', async (req, res) => {
   }
 });
 
-app.post('/vaults/:uid', async (req, res) => {
+app.post('/vaults/:uid', authenticateUser, async (req, res) => {
   const { name } = req.body;
   try {
     const result = await pool.query(
@@ -129,7 +203,7 @@ app.post('/vaults/:uid', async (req, res) => {
   }
 });
 
-app.patch('/folders/:id', async (req, res) => {
+app.patch('/folders/:id', authenticateUser, async (req, res) => {
   const { id } = req.params;
   const { name, parent_id, sort_order } = req.body;
 
@@ -160,7 +234,7 @@ app.patch('/folders/:id', async (req, res) => {
   }
 });
 
-app.delete('/folders/:id', async (req, res) => {
+app.delete('/folders/:id', authenticateUser, async (req, res) => {
   try {
     await pool.query('DELETE FROM folders WHERE id = $1', [req.params.id]);
     res.json({ message: 'Folder deleted' });
@@ -170,7 +244,7 @@ app.delete('/folders/:id', async (req, res) => {
   }
 });
 
-app.delete('/vaults/:id', async (req, res) => {
+app.delete('/vaults/:id', authenticateUser, async (req, res) => {
   try {
     await pool.query('DELETE FROM vaults WHERE id = $1', [req.params.id]);
     res.json({ message: 'Vault deleted' });
@@ -181,7 +255,7 @@ app.delete('/vaults/:id', async (req, res) => {
 });
 
 // Folders Endpoints
-app.get('/folders/:vault_id', async (req, res) => {
+app.get('/folders/:vault_id', authenticateUser, async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT * FROM folders WHERE vault_id = $1 ORDER BY sort_order ASC, created DESC',
@@ -194,7 +268,7 @@ app.get('/folders/:vault_id', async (req, res) => {
   }
 });
 
-app.post('/folders', async (req, res) => {
+app.post('/folders', authenticateUser, async (req, res) => {
   const { vault_id, parent_id, name, sort_order } = req.body;
   try {
     const result = await pool.query(
@@ -209,7 +283,7 @@ app.post('/folders', async (req, res) => {
 });
 
 // Notes Endpoints
-app.get('/notes', async (req, res) => {
+app.get('/notes', authenticateUser, async (req, res) => {
   const { uid, vault_id, folder_id } = req.query;
   let query = 'SELECT * FROM notes WHERE uid = $1';
   const params = [uid];
@@ -236,7 +310,7 @@ app.get('/notes', async (req, res) => {
   }
 });
 
-app.get('/notes/:id', async (req, res) => {
+app.get('/notes/:id', authenticateUser, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM notes WHERE id = $1', [req.params.id]);
     if (result.rowCount === 0) {
@@ -249,7 +323,7 @@ app.get('/notes/:id', async (req, res) => {
   }
 });
 
-app.post('/notes', async (req, res) => {
+app.post('/notes', authenticateUser, async (req, res) => {
   const { uid, vault_id, folder_id, title, content, sort_order } = req.body;
   try {
     const result = await pool.query(
@@ -265,7 +339,7 @@ app.post('/notes', async (req, res) => {
   }
 });
 
-app.patch('/notes/:id/move', async (req, res) => {
+app.patch('/notes/:id/move', authenticateUser, async (req, res) => {
   const { id } = req.params;
   const { folder_id } = req.body;
   try {
@@ -280,7 +354,7 @@ app.patch('/notes/:id/move', async (req, res) => {
   }
 });
 
-app.patch('/folders/:id/move', async (req, res) => {
+app.patch('/folders/:id/move', authenticateUser, async (req, res) => {
   const { id } = req.params;
   const { parent_id } = req.body;
   try {
@@ -295,7 +369,7 @@ app.patch('/folders/:id/move', async (req, res) => {
   }
 });
 
-app.post('/reorder', async (req, res, next) => {
+app.post('/reorder', authenticateUser, async (req, res, next) => {
   const { items } = req.body;
   if (!Array.isArray(items)) return res.status(400).json({ error: 'Expected items array' });
 
@@ -321,7 +395,7 @@ app.post('/reorder', async (req, res, next) => {
   }
 });
 
-app.patch('/notes/:id', async (req, res) => {
+app.patch('/notes/:id', authenticateUser, async (req, res) => {
   const { id } = req.params;
   const { title, content, sort_order, folder_id } = req.body;
 
@@ -354,7 +428,7 @@ app.patch('/notes/:id', async (req, res) => {
   }
 });
 
-app.delete('/notes/:id', async (req, res) => {
+app.delete('/notes/:id', authenticateUser, async (req, res) => {
   try {
     await pool.query('DELETE FROM notes WHERE id = $1', [req.params.id]);
     res.json({ message: 'Note deleted' });
@@ -364,58 +438,146 @@ app.delete('/notes/:id', async (req, res) => {
   }
 });
 
-// Transactions Endpoint
-app.post('/transactions', async (req, res) => {
-  const { uid, amount_credits, razorpay_order_id, razorpay_payment_id } = req.body;
+// --- Razorpay Payment Integration ---
+app.get('/credits/:uid', async (req, res) => {
   try {
-    const result = await pool.query(
-      `INSERT INTO credit_transactions (uid, amount_credits, razorpay_order_id, razorpay_payment_id, created_at)
-       VALUES ($1, $2, $3, $4, NOW()) RETURNING *`,
-      [uid, amount_credits, razorpay_order_id, razorpay_payment_id]
-    );
+    const user = await getOrInitUser(req.params.uid);
+    res.json({ credits: user.credits });
+  } catch (err) { res.status(500).json({ error: 'Failed to fetch credits' }); }
+});
 
-    // Also update user credits
-    await pool.query(
-      'UPDATE users SET credits = credits + $1 WHERE uid = $2',
-      [amount_credits, uid]
-    );
+app.post('/create-razorpay-order', async (req, res) => {
+  try {
+    const { amount, uid } = req.body;
+    if (!amount || isNaN(amount) || !uid) {
+      return res.status(400).json({ error: 'Valid amount and UID are required' });
+    }
 
-    res.status(201).json(result.rows[0]);
+    // ENSURE PAISÉ (Integer Only)
+    const amountPaise = Math.round(parseFloat(amount) * 100);
+    console.log(`💳 [NEW ORDER] uid: ${uid}, amount: ₹${amount} (${amountPaise} paise)`);
+
+    const options = {
+      amount: amountPaise,
+      currency: 'INR',
+      receipt: `rcpt_${uid.slice(0, 8)}_${Date.now()}`,
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    // TRACK ORDER LOCALLY FOR VERIFICATION
+    activeOrders.set(order.id, {
+      uid,
+      amountPaise,
+      createdAt: Date.now()
+    });
+
+    // Cleanup old orders (older than 30 mins)
+    for (const [id, data] of activeOrders.entries()) {
+      if (Date.now() - data.createdAt > 30 * 60 * 1000) activeOrders.delete(id);
+    }
+
+    console.log(`✅ Razorpay order created for ${uid}:`, JSON.stringify(order, null, 2));
+    console.log(`🔑 Using Key ID: ${process.env.RAZORPAY_KEY_ID}`);
+    res.json({
+      id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key_id: process.env.RAZORPAY_KEY_ID
+    });
   } catch (err) {
-    console.error(`❌ POST /transactions error:`, err);
-    res.status(500).json({ error: 'Failed to log transaction', details: err.message });
+    console.error('❌ Razorpay order creation failed:', err);
+    res.status(500).json({
+      error: 'Order creation failed',
+      detail: err?.description || err?.message || 'Check Razorpay credentials'
+    });
+  }
+});
+
+app.post('/verify-payment', async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, uid, creditsToAdd } = req.body;
+
+  // STRICT FIELD CHECK
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !uid || !creditsToAdd) {
+    console.warn('❌ Verification rejected: Missing required fields');
+    return res.status(400).json({ error: 'Missing payment details' });
+  }
+
+  // LIFECYCLE CHECK: Does this order exist in our system?
+  const trackedOrder = activeOrders.get(razorpay_order_id);
+  if (!trackedOrder) {
+    console.warn(`❌ Verification rejected: Order ${razorpay_order_id} not found/expired`);
+    return res.status(400).json({ error: 'Order session expired or invalid' });
+  }
+
+  // TRANSACTION DATA VALIDATION
+  const expectedPaise = Math.round(parseFloat(creditsToAdd) * 100);
+  if (trackedOrder.uid !== uid || trackedOrder.amountPaise !== expectedPaise) {
+    console.warn(`❌ Verification rejected: Data mismatch for order ${razorpay_order_id}`);
+    return res.status(400).json({ error: 'Payment data mismatch' });
+  }
+
+  const secret = process.env.RAZORPAY_KEY_SECRET;
+  const text = `${razorpay_order_id}|${razorpay_payment_id}`;
+  const generated = crypto
+    .createHmac("sha256", secret)
+    .update(text, "utf-8")
+    .digest("hex");
+
+  console.log(`🔐 Verification for ${razorpay_order_id}: Generated[...${generated.slice(-10)}] vs Received[...${razorpay_signature.slice(-10)}]`);
+
+  if (generated === razorpay_signature) {
+    try {
+      const credits = parseInt(creditsToAdd); // PURE INTEGER
+      const result = await pool.query(
+        `INSERT INTO users (uid, credits, last_credit_reset)
+         VALUES ($1, $2, NOW())
+         ON CONFLICT (uid)
+         DO UPDATE SET credits = users.credits + EXCLUDED.credits
+         RETURNING credits`,
+        [uid.trim(), credits]
+      );
+
+      await pool.query(
+        'INSERT INTO credit_transactions (uid, amount_credits, razorpay_order_id, razorpay_payment_id) VALUES ($1, $2, $3, $4)',
+        [uid, credits, razorpay_order_id, razorpay_payment_id]
+      );
+
+      // Successfully processed: cleanup
+      activeOrders.delete(razorpay_order_id);
+
+      console.log(`✅ Payment verified for ${uid}. New balance: ${result.rows[0].credits}`);
+      res.json({ success: true, newBalance: result.rows[0].credits });
+    } catch (err) {
+      console.error('❌ DB update failed:', err);
+      res.status(500).json({ error: 'DB update failed' });
+    }
+  } else {
+    console.warn(`❌ Invalid signature for order ${razorpay_order_id}`);
+    res.status(400).json({ error: 'Invalid signature' });
   }
 });
 
 // --- Gemini Evaluation Layer ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-app.post('/evaluate-session', async (req, res) => {
+app.post('/evaluate-session', authenticateUser, async (req, res) => {
   const { originalText, recallText, mode } = req.body;
+  const uid = req.user.id;
 
   if (!originalText || !recallText) {
-    console.error('❌ POST /evaluate-session: Missing text inputs');
     return res.status(400).json({ error: 'Missing content for evaluation' });
   }
 
-  try {
-    // FORCE JSON output using generationConfig
-
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      generationConfig: { responseMimeType: "application/json" }
-    });
-
-
-    const prompt = `
+  // 1. Estimate Cost & Reserve Credits (Transaction 1)
+  const systemPromptTemplate = `
       You are an expert educational assistant evaluating a student's recall session.
       The student is using the ${mode === 'feynman' ? 'Feynman Technique (explaining as if to a child)' : 'Blurt Method (recalling as much as possible)'}.
 
       Original Note (Primary Source):
-      ${originalText}
-
+      
       Student's Recall/Explanation:
-      ${recallText}
+      
 
       Task:
       Evaluate the student's recall based on the original note.
@@ -430,27 +592,81 @@ app.post('/evaluate-session', async (req, res) => {
       Ensure the output is ONLY a valid JSON object.
     `;
 
-    const result = await model.generateContent(prompt);
+  const fullInput = systemPromptTemplate + originalText + recallText;
+  // Reservation cost: Input tokens + heuristic for max output (e.g. 1500 chars ~ 375 tokens)
+  const reservationEstimate = calculateCost(fullInput, " ".repeat(1500)).totalCost;
+
+  let client;
+  try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+
+    // Row-level lock
+    const userRes = await client.query('SELECT credits FROM users WHERE uid = $1 FOR UPDATE', [uid]);
+    if (userRes.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+
+    const currentCredits = parseFloat(userRes.rows[0].credits);
+    if (currentCredits < reservationEstimate) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'Insufficient credits', required: reservationEstimate.toFixed(2), have: currentCredits.toFixed(2) });
+    }
+
+    // Reservation Step
+    await client.query('UPDATE users SET credits = credits - $1 WHERE uid = $2', [reservationEstimate, uid]);
+    await client.query('COMMIT');
+    client.release();
+    client = null; // Mark as released
+
+    // 2. Call Gemini API
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const result = await model.generateContent(fullInput);
     const response = await result.response;
     let text = response.text();
 
-    // Clean up potential markdown formatting (safety backup)
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    // 3. Post-calculate & Adjust (Transaction 2)
+    const actualCostInfo = calculateCost(fullInput, text);
+    const costError = reservationEstimate - actualCostInfo.totalCost;
 
-    try {
-      const evaluation = JSON.parse(text);
-      res.json(evaluation);
-    } catch (parseError) {
-      console.error('❌ Failed to parse Gemini output:', text);
-      res.status(500).json({
-        error: 'Invalid JSON from AI',
-        details: parseError.message,
-        raw: text
-      });
-    }
+    client = await pool.connect();
+    await client.query('BEGIN');
+    // Refund the difference (could be positive or negative, but costError is usually positive)
+    await client.query('UPDATE users SET credits = credits + $1 WHERE uid = $2', [costError, uid]);
+    await client.query('COMMIT');
+
+    // Return Evaluation
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const evaluation = JSON.parse(text);
+    res.json({ ...evaluation, creditsUsed: actualCostInfo.totalCost.toFixed(4) });
+
   } catch (err) {
-    console.error('❌ Gemini Evaluation Error:', err);
-    res.status(500).json({ error: 'Failed to evaluate session with AI', details: err.message });
+    console.error('❌ AI Evaluation Error:', err);
+
+    // 4. Rollback Reservation on Failure
+    if (client) {
+      try {
+        await client.query('ROLLBACK');
+      } catch (rbErr) { /* ignore */ }
+    }
+
+    // If it was already committed (reservation is independent), we must refund explicitly
+    try {
+      const refundClient = client || await pool.connect();
+      await refundClient.query('UPDATE users SET credits = credits + $1 WHERE uid = $2', [reservationEstimate, uid]);
+      if (!client) refundClient.release();
+    } catch (refErr) {
+      console.error('❌ Critical: Failed to refund credits after evaluation error!', refErr);
+    }
+
+    res.status(500).json({ error: 'Evaluation failed', details: err.message });
+  } finally {
+    if (client) client.release();
   }
 });
 

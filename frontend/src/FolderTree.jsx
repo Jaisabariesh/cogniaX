@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const FolderRow = React.memo(({ folder, depth, isExpanded, onToggle, onAddNote, onAddFolder, onDragStart, onDragOver, onDrop, onDragEnd }) => {
   return (
@@ -65,9 +66,12 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
   const fetchData = useCallback(async () => {
     if (!vaultId) return;
     try {
+      const token = Cookies.get('sb-access-token');
+      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+      
       const [fRes, nRes] = await Promise.all([
-        axios.get(`http://localhost:3000/folders/${vaultId}`),
-        axios.get(`http://localhost:3000/notes?uid=${uid}`)
+        axios.get(`http://localhost:3000/folders/${vaultId}`, authHeader),
+        axios.get(`http://localhost:3000/notes?uid=${uid}`, authHeader)
       ]);
       setFolders(fRes.data);
       setAllNotes(nRes.data.filter(n => n.vault_id === vaultId));
@@ -89,11 +93,14 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
     const name = window.prompt('Enter folder name:');
     if (!name) return;
     try {
+      const token = Cookies.get('sb-access-token');
       await axios.post(`http://localhost:3000/folders`, {
         vault_id: vaultId,
         parent_id: parentId,
         name,
         sort_order: Math.floor(Date.now() / 1000)
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
       if (parentId) setExpandedFolders(prev => ({ ...prev, [parentId]: true }));
@@ -106,6 +113,7 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
     const title = window.prompt('Enter note title:');
     if (!title) return;
     try {
+      const token = Cookies.get('sb-access-token');
       const res = await axios.post(`http://localhost:3000/notes`, {
         uid,
         vault_id: vaultId,
@@ -113,6 +121,8 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
         title,
         sort_order: Math.floor(Date.now() / 1000),
         content: { type: 'doc', content: [{ type: 'paragraph' }] }
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
       onSelectNote(res.data);
