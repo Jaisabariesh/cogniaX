@@ -51,12 +51,13 @@ lowlight.register('html', html);
 
 
 
-const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent }) => {
+const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMode, setActiveMode }) => {
   const [isEditable, setIsEditable] = useState(true);
   const [editorState, setEditorState] = useState('notEditing');
-  const [activeMode, setActiveMode] = useState('none');
+  // const [activeMode, setActiveMode] = useState('none'); // Replaced by props
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [deleteMenu, setDeleteMenu] = useState(null); // { top, left, pos }
+  const titleTextareaRef = useRef(null);
   const prevContentRef = useRef(null);
   const saveTimeoutRef = useRef(null);
   const lastSavedJsonRef = useRef(null);
@@ -77,6 +78,13 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent }) => {
     selectedNoteRef.current = selectedNote; 
   }, [selectedNote]);
 
+  useEffect(() => {
+    if (titleTextareaRef.current) {
+      titleTextareaRef.current.style.height = 'auto';
+      titleTextareaRef.current.style.height = `${titleTextareaRef.current.scrollHeight}px`;
+    }
+  }, [selectedNote?.title, activeMode]);
+
   const setEditorContentRef = useRef(setEditorContent);
   useEffect(() => { setEditorContentRef.current = setEditorContent; }, [setEditorContent]);
 
@@ -96,7 +104,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent }) => {
       CodeBlockLowlight.configure({ lowlight }),
       ResizableImageExtension,
       HorizontalRule,
-      Dropcursor.configure({ color: '#00d2ff', width: 2 }),
+      Dropcursor.configure({ color: '#a37bf4', width: 2 }),
       Gapcursor,
       Bold,
       Italic,
@@ -175,9 +183,12 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent }) => {
 
     setEditorState('saving');
     try {
+      const token = Cookies.get('sb-access-token');
       await axios.patch(`http://localhost:3000/notes/${note.id}`, {
         title: titleText,
         content: contentJson
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (savedRequestId === requestIdRef.current) {
         lastSavedJsonRef.current = currentJsonStr;
@@ -393,38 +404,18 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent }) => {
         </>
       )}
       <div className={`editor-wrapper ${activeMode !== 'none' ? 'focus-active' : ''}`}>
-        <div className="note-header">
-          <div className="breadcrumbs">
-              <span className="breadcrumb-path">Workspace</span>
-              <span className="breadcrumb-separator">›</span>
-              <span className="breadcrumb-current">{selectedNote?.title || 'Untitled'}</span>
-          </div>
-          <div className="header-actions">
-            <div className={`save-status ${status.class}`}>{status.text}</div>
-            {activeMode === 'none' && (
-              <div className="header-actions-group">
-                <div className="focus-menu-container">
-                  <button className="kebab-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>&#x22EE;</button>
-                  {isMenuOpen && (
-                    <div className="focus-dropdown">
-                      <button onClick={() => { setActiveMode('feynman'); setIsMenuOpen(false); }}>🧠 Feynman Mode</button>
-                      <button onClick={() => { setActiveMode('blurt'); setIsMenuOpen(false); }}>🗣️ Blurt Mode</button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
         <div className="note-body-container">
-          <input 
-            type="text"
+          <textarea 
+            ref={titleTextareaRef}
             className="static-note-title"
-            value={activeMode === 'none' ? (selectedNote?.title || '') : (activeMode === 'feynman' ? '🧠 Feynman' : '🗣️ Blurt')}
+            value={activeMode === 'none' ? (selectedNote?.title || '') : (activeMode === 'feynman' ? '🧠 Feynman Method' : '🗣️ Blurt Session')}
             placeholder="Untitled"
             readOnly={activeMode !== 'none'}
+            rows={1}
             onChange={(e) => {
               if (activeMode !== 'none') return;
+              e.target.style.height = 'auto';
+              e.target.style.height = `${e.target.scrollHeight}px`;
               setEditorContentRef.current(editor.getJSON(), e.target.value);
             }}
           />

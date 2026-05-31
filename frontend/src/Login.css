@@ -16,7 +16,7 @@ body {
   left: 0;
   width: 50vw;
   height: 100vh;
-  background-color: #DD8899;
+  background-color: #A37CF4;
   z-index: -1;
   transform: translateX(0);
   transition: transform 0.4s ease;
@@ -84,7 +84,7 @@ body {
 
 .input-box:focus {
   background-color: #f0f0f0;
-  box-shadow: 0 0 0 2px #ff0080;
+  box-shadow: 0 0 0 2px #A37CF4;
 }
 
 /* === Form Containers === */
@@ -101,7 +101,7 @@ body {
   padding: 12px 16px;
   border: none;
   border-radius: 8px;
-  background-color: #FE0E82;
+  background-color: #A37CF4;
   color: white;
   font-size: 16px;
   font-weight: 500;
@@ -111,14 +111,14 @@ body {
 }
 
 .signin-button:hover, .signup-button:hover {
-  background-color: #ff5b9f;
+  background-color: #C0A3F8;
 }
 
 /* === Switch Links === */
 .right, .left {
   background: none;
   border: none;
-  color: #3b82f6;
+  color: #A37CF4;
   font-size: 0.85rem;
   cursor: pointer;
   margin-bottom: 20px;

@@ -108,42 +108,46 @@ const CreditManager = ({ uid, refreshKey }) => {
   // ---- Styles ----
   const styles = {
     wrapper: {
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.06)',
-      borderRadius: '12px',
-      padding: '12px 16px',
+      display: 'flex',
+      alignItems: 'center',
     },
     row: {
       display: 'flex',
       alignItems: 'center',
-      gap: '10px',
+      gap: '8px',
     },
     label: {
-      color: '#888',
-      fontSize: '13px',
-      fontWeight: '500',
+      color: '#a1a1aa',
+      fontSize: '11px',
+      fontWeight: '700',
+      letterSpacing: '0.05em',
+      textTransform: 'uppercase',
     },
     creditCount: {
-      color: '#fff',
-      fontSize: '20px',
+      color: '#e4e4e7',
+      fontSize: '12px',
       fontWeight: '700',
-      letterSpacing: '-0.5px',
+      letterSpacing: '0.5px',
+      whiteSpace: 'nowrap',
     },
     addBtn: {
-      marginLeft: 'auto',
       width: '28px',
       height: '28px',
-      borderRadius: '8px',
-      background: '#3478f6',
+      borderRadius: '50%',
+      background: '#8b5cf6',
       color: '#fff',
       border: 'none',
-      fontSize: '18px',
-      fontWeight: '600',
+      fontSize: '16px',
+      fontWeight: '700',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      transition: 'background 0.15s',
+      transition: 'all 0.15s',
+      lineHeight: '1',
+      flexShrink: 0,
+      boxShadow: '0 0 12px rgba(139, 92, 246, 0.4)',
+      userSelect: 'none',
     },
     overlay: {
       position: 'fixed',
@@ -258,12 +262,15 @@ const CreditManager = ({ uid, refreshKey }) => {
   return (
     <div style={styles.wrapper}>
       <div style={styles.row}>
-        <span style={styles.label}>Credits</span>
-        <span style={styles.creditCount} title="50 free monthly">{typeof credits === 'number' ? credits.toFixed ? Math.round(credits * 100) / 100 : credits : credits}</span>
+        <span style={{ color: '#71717a', fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>CR</span>
+        <span style={styles.creditCount}>
+          {typeof credits === 'number' ? (Math.round(credits * 100) / 100) : credits}
+        </span>
         <button
           style={styles.addBtn}
           onClick={() => setIsModalOpen(true)}
           title="Top up credits"
+          type="button"
         >
           +
         </button>

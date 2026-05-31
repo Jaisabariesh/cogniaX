@@ -56,11 +56,11 @@
     "js-cookie": "^3.0.5",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.511.0",
-
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-mathquill": "^1.0.4",
     "react-router-dom": "^7.6.0",
+    "react-textarea-autosize": "^8.5.9",
     "reactflow": "^11.11.4",
     "sass": "^1.89.0",
     "tiptap": "^1.32.2",

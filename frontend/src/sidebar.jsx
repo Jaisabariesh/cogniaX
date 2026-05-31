@@ -2,29 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { supabase } from './supabase';
-import CreditManager from './CreditManager';
 import FolderTree from './FolderTree';
 
 import './sidebar.css';
 
-const Sidebar = ({ uid, selectedVaultId, setSelectedNoteContent, editorContent, setSelectedNote, selectedNote, isOpen }) => {
+const Sidebar = ({ uid, selectedVaultId, vaultName, setSelectedNoteContent, setSelectedNote, selectedNote, isOpen, onToggle, activeMode }) => {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   const [searchQuery, setSearchQuery] = useState('');
+  const [focusWarning, setFocusWarning] = useState(false);
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  const showFocusWarning = () => {
+    setFocusWarning(true);
+    setTimeout(() => setFocusWarning(false), 2500);
   };
 
-  const handleSelectNote = async (note) => {
-    // Optimistically set title, but wait for fresh content
-    setSelectedNote(note);
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }, []);
 
+  const handleSelectNote = async (note) => {
+    if (activeMode !== 'none') {
+      showFocusWarning();
+      return;
+    }
+    setSelectedNote(note);
     try {
       const res = await axios.get(`http://localhost:3000/notes/${note.id}`);
       setSelectedNoteContent(res.data.content);
@@ -34,36 +35,54 @@ const Sidebar = ({ uid, selectedVaultId, setSelectedNoteContent, editorContent, 
     }
   };
 
-  const handleSaveNote = async () => {
-    if (!selectedNote || !editorContent) return;
-    try {
-      await axios.patch(`http://localhost:3000/notes/${selectedNote.id}`, {
-        content: editorContent
-      });
-      alert('Note saved!');
-    } catch (err) {
-      console.error('Failed to save:', err);
-    }
-  };
 
   if (!uid) return <div className={`sidebar ${!isOpen ? 'closed' : ''}`}>🔄 Loading...</div>;
 
   return (
     <div className={`sidebar ${!isOpen ? 'closed' : ''}`}>
-      <div className="sidebar-header" onClick={() => navigate(`/${uid}`)} style={{ cursor: 'pointer', marginBottom: '20px' }}>
-        <h2 style={{ margin: 0, letterSpacing: '2px' }}>COGNIA</h2>
-        <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>← Back to Vaults</span>
+      <div className="sidebar-brand-row">
+        <div className="brand-logo-container">
+          <img src="https://lh3.googleusercontent.com/aida/ADBb0uhEBaYWQoDGmomCK0dFmYeMQbaHG7MsqLibPP5ps16yfNmxZv-3EzqCREvCluP9J4B5se4dO3k_-w2y6Pu7AiyxJAr9BONsWu2jl2IknLq9UXtGV4urPeM7ttySzddFZl7aVjPe1Xmf1dUU_RvGFM6QFV7QfA2c34EBCRHsyR6YFvvDuMB3zYKbYo2CeFakUER4woKQzlsxIgOUTxWJ8PXMfJ6uhf0RBIXQq9MJn1bifARLTm1Q2RD-jg" alt="COGNIA" className="brand-logo" />
+          <span className="brand-name">COGNIA</span>
+        </div>
       </div>
 
-      <CreditManager uid={uid} />
+      <div className="sidebar-back-row" onClick={() => {
+        if (activeMode !== 'none') { showFocusWarning(); return; }
+        navigate(`/${uid}`);
+      }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        <span>BACK TO VAULTS</span>
+      </div>
 
-      <div className="sidebar-search">
+      {focusWarning && (
+        <div className="focus-lock-warning">
+          🔒 Exit focus mode first
+        </div>
+      )}
+
+      <div className="sidebar-active-vault">
+        <div className="vault-indicator"></div>
+        <div className="vault-context">
+          <div className="vault-label">ACTIVE VAULT</div>
+          <div className="vault-name">{vaultName?.toUpperCase() || 'WORKSPACE'}</div>
+        </div>
+        <button className="sidebar-collapse-btn" onClick={onToggle}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+      </div>
+
+      <div className="sidebar-search-container">
+        <svg className="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
         <input
           type="text"
-          placeholder="Search files & folders..."
+          placeholder="Quick search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="search-input"
+          className="search-input-pill"
         />
       </div>
 
@@ -75,13 +94,6 @@ const Sidebar = ({ uid, selectedVaultId, setSelectedNoteContent, editorContent, 
         searchQuery={searchQuery}
       />
 
-      <div style={{ marginTop: 'auto', paddingTop: '20px' }}>
-        <button className="sidebar-btn" onClick={handleSaveNote}>Save Current Note</button>
-        <button className="sidebar-btn" onClick={toggleTheme} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
-        </button>
-        <button className="sidebar-btn">Settings</button>
-      </div>
     </div>
   );
 };

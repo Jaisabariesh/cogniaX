@@ -9,6 +9,9 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
 
 const razorpay = new Razorpay({
   key_id: (process.env.RAZORPAY_KEY_ID || '').trim(),
@@ -28,6 +31,29 @@ const activeOrders = new Map();
 
 const app = express();
 const port = 3000;
+
+// Security Middleware
+app.use(helmet()); // Basic security headers
+app.use(hpp());    // Prevent HTTP Parameter Pollution
+
+// Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const sensitiveLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // Limit each IP to 20 requests per hour
+  message: { error: 'Too many attempts on sensitive routes, please try again in an hour.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(globalLimiter); // Apply global rate limiter
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -446,7 +472,7 @@ app.get('/credits/:uid', async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Failed to fetch credits' }); }
 });
 
-app.post('/create-razorpay-order', async (req, res) => {
+app.post('/create-razorpay-order', sensitiveLimiter, async (req, res) => {
   try {
     const { amount, uid } = req.body;
     if (!amount || isNaN(amount) || !uid) {
@@ -494,7 +520,7 @@ app.post('/create-razorpay-order', async (req, res) => {
   }
 });
 
-app.post('/verify-payment', async (req, res) => {
+app.post('/verify-payment', sensitiveLimiter, async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature, uid, creditsToAdd } = req.body;
 
   // STRICT FIELD CHECK
@@ -561,7 +587,7 @@ app.post('/verify-payment', async (req, res) => {
 // --- Gemini Evaluation Layer ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-app.post('/evaluate-session', authenticateUser, async (req, res) => {
+app.post('/evaluate-session', authenticateUser, sensitiveLimiter, async (req, res) => {
   const { originalText, recallText, mode } = req.body;
   const uid = req.user.id;
 
@@ -575,9 +601,10 @@ app.post('/evaluate-session', authenticateUser, async (req, res) => {
       The student is using the ${mode === 'feynman' ? 'Feynman Technique (explaining as if to a child)' : 'Blurt Method (recalling as much as possible)'}.
 
       Original Note (Primary Source):
-      
+      ${originalText}
+
       Student's Recall/Explanation:
-      
+      ${recallText}
 
       Task:
       Evaluate the student's recall based on the original note.
@@ -592,7 +619,7 @@ app.post('/evaluate-session', authenticateUser, async (req, res) => {
       Ensure the output is ONLY a valid JSON object.
     `;
 
-  const fullInput = systemPromptTemplate + originalText + recallText;
+  const fullInput = systemPromptTemplate;
   // Reservation cost: Input tokens + heuristic for max output (e.g. 1500 chars ~ 375 tokens)
   const reservationEstimate = calculateCost(fullInput, " ".repeat(1500)).totalCost;
 

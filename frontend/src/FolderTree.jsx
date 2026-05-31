@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const FolderRow = React.memo(({ folder, depth, isExpanded, onToggle, onAddNote, onAddFolder, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+const FolderRow = React.memo(({ folder, depth, isExpanded, onToggle, onAddNote, onAddFolder, onDelete, onDragStart, onDragOver, onDrop, onDragEnd }) => {
   return (
     <div
       className="folder-item"
@@ -22,6 +22,11 @@ const FolderRow = React.memo(({ folder, depth, isExpanded, onToggle, onAddNote, 
         <div className="folder-actions">
           <button onClick={(e) => { e.stopPropagation(); onAddNote(folder.id) }} title="Add Note">+</button>
           <button onClick={(e) => { e.stopPropagation(); onAddFolder(folder.id) }} title="Add Subfolder">📁+</button>
+          <button 
+            className="delete-folder-btn" 
+            onClick={(e) => { e.stopPropagation(); onDelete(folder.id, e) }} 
+            title="Delete Folder"
+          >×</button>
         </div>
       </div>
     </div>
@@ -136,10 +141,27 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
     e.stopPropagation();
     if (!window.confirm('Delete this note?')) return;
     try {
-      await axios.delete(`http://localhost:3000/notes/${id}`);
+      const token = Cookies.get('sb-access-token');
+      await axios.delete(`http://localhost:3000/notes/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       fetchData();
     } catch (err) {
       console.error('Failed to delete note:', err);
+    }
+  }, [fetchData]);
+
+  const handleDeleteFolder = useCallback(async (id, e) => {
+    e.stopPropagation();
+    if (!window.confirm('Delete this folder and ALL its contents?')) return;
+    try {
+      const token = Cookies.get('sb-access-token');
+      await axios.delete(`http://localhost:3000/folders/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchData();
+    } catch (err) {
+      console.error('Failed to delete folder:', err);
     }
   }, [fetchData]);
 
@@ -224,11 +246,14 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
     const flatNodesCurrent = flatNodesRef.current;
 
     try {
+      const token = Cookies.get('sb-access-token');
+      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+
       if (dropZone === 'inside') {
         if (dragged.type === 'folder') {
-          await axios.patch(`http://localhost:3000/folders/${dragged.id}/move`, { parent_id: target.id });
+          await axios.patch(`http://localhost:3000/folders/${dragged.id}/move`, { parent_id: target.id }, authHeader);
         } else {
-          await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: target.id });
+          await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: target.id }, authHeader);
         }
       } else {
         const newContainerId = target.type === 'folder' ? target.parent_id : target.folder_id;
@@ -255,13 +280,13 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
         const oldContainerId = dragged.type === 'folder' ? dragged.parent_id : dragged.folder_id;
         if (oldContainerId !== newContainerId) {
           if (dragged.type === 'folder') {
-            await axios.patch(`http://localhost:3000/folders/${dragged.id}/move`, { parent_id: newContainerId || null });
+            await axios.patch(`http://localhost:3000/folders/${dragged.id}/move`, { parent_id: newContainerId || null }, authHeader);
           } else {
-            await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: newContainerId || null });
+            await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: newContainerId || null }, authHeader);
           }
         }
 
-        await axios.post('http://localhost:3000/reorder', { items: reorderPayload });
+        await axios.post('http://localhost:3000/reorder', { items: reorderPayload }, authHeader);
       }
 
       fetchData();
@@ -306,8 +331,17 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
   return (
     <div className="folder-tree-container">
       <div className="tree-header" style={{ justifyContent: searchQuery ? 'flex-start' : 'space-between' }}>
-        <span>{searchQuery ? 'SEARCH RESULTS' : 'FAVORITES & EXPLORER'}</span>
-        {!searchQuery && <button onClick={() => handleCreateFolder()} className="add-root-folder-btn">+</button>}
+        <span>{searchQuery ? 'SEARCH RESULTS' : 'LIBRARY'}</span>
+        {!searchQuery && (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={() => handleCreateNote()} className="add-root-btn" title="Add Note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+            </button>
+            <button onClick={() => handleCreateFolder()} className="add-root-btn" title="Add Folder">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+            </button>
+          </div>
+        )}
       </div>
 
       <div
@@ -321,10 +355,12 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
           const dragged = dragItemRef.current;
           if (!dragged) return;
           try {
+            const token = Cookies.get('sb-access-token');
+            const authHeader = { headers: { Authorization: `Bearer ${token}` } };
             if (dragged.type === 'folder') {
-              await axios.patch(`http://localhost:3000/folders/${dragged.id}/move`, { parent_id: null });
+              await axios.patch(`http://localhost:3000/folders/${dragged.id}/move`, { parent_id: null }, authHeader);
             } else {
-              await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: null });
+              await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: null }, authHeader);
             }
             fetchData();
           } catch (err) { }
@@ -340,6 +376,7 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
               onToggle={toggleFolder}
               onAddNote={handleCreateNote}
               onAddFolder={handleCreateFolder}
+              onDelete={handleDeleteFolder}
               onDragStart={onDragStart}
               onDragOver={onDragOver}
               onDrop={onDrop}
@@ -363,14 +400,7 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
           <div style={{ padding: '16px 10px', color: 'var(--text-dim)', fontSize: '0.85rem', textAlign: 'center' }}>No results found</div>
         )}
 
-        {!searchQuery && (
-          <button
-            onClick={() => handleCreateNote()}
-            className="new-note-btn"
-          >
-            + New Note at Root
-          </button>
-        )}
+
       </div>
     </div>
   );

@@ -1,11 +1,12 @@
-/* 🌌 Main layout */
 .parent-layout {
   display: flex;
   height: 100vh;
+  width: 100vw;
   overflow: hidden;
-  background-color: var(--bg-editor);
-  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-main);
+  font-family: var(--font-main);
   color: var(--text-primary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 📝 Editor section */
@@ -14,9 +15,18 @@
   display: flex;
   flex-direction: column;
   padding: 0;
-  background-color: var(--bg-editor);
+  background-color: var(--bg-main);
   position: relative;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.editor-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
 }
 
 .editor-content {
@@ -114,4 +124,19 @@
 
 .sidebar-toggle-btn:active {
   transform: scale(0.95);
+}
+
+.editor-brand-footer {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 2.5px;
+  color: var(--text-tertiary);
+  opacity: 0.5;
+  pointer-events: none;
+  font-weight: 600;
+  white-space: nowrap;
 }
