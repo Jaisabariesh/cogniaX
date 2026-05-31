@@ -29,27 +29,18 @@ const P5Component = ({ node, updateAttributes, deleteNode }) => {
     try {
       const sketch = (p) => {
         try {
-          const p5Props = Object.getOwnPropertyNames(Object.getPrototypeOf(p));
-          const keys = [];
-          const values = [];
-          
-          p5Props.forEach(prop => {
-            if (typeof p[prop] === 'function') {
-              keys.push(prop);
-              values.push(p[prop].bind(p));
+          const userFunction = new Function('p', `
+            with (p) {
+              ${localCode}
+              return { 
+                setup: typeof setup !== 'undefined' ? setup : null, 
+                draw: typeof draw !== 'undefined' ? draw : null,
+                mousePressed: typeof mousePressed !== 'undefined' ? mousePressed : null
+              };
             }
-          });
-
-          const userFunction = new Function(...keys, `
-            ${localCode}
-            return { 
-              setup: typeof setup !== 'undefined' ? setup : null, 
-              draw: typeof draw !== 'undefined' ? draw : null,
-              mousePressed: typeof mousePressed !== 'undefined' ? mousePressed : null
-            };
           `);
           
-          const callbacks = userFunction(...values);
+          const callbacks = userFunction(p);
           if (callbacks.setup) p.setup = callbacks.setup;
           if (callbacks.draw) p.draw = callbacks.draw;
           if (callbacks.mousePressed) p.mousePressed = callbacks.mousePressed;
