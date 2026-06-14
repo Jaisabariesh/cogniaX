@@ -4,11 +4,6 @@
   overflow: hidden;    /* prevent outer scroll */
 }
 
-.sidebar {
-  width: 200px;        /* fixed width for sidebar */
-  background: #da1f1f;
-  /* keep sidebar fixed height, no scroll */
-}
 
 .main-content {
   flex: 1;             /* take remaining width */

@@ -1,14 +1,14 @@
 .sidebar {
-  width: 250px;
+  width: 280px;
   height: 100vh;
-  background-color: #1B1B1B;
-  color: #94949e;
+  background-color: #212121;
+  color: var(--text-secondary);
   display: flex;
   flex-direction: column;
-  padding: 16px 12px;
+  padding: 24px 16px;
   box-sizing: border-box;
-  border-right: 1px solid #2a2a2a;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  border-right: 1px solid var(--border);
+  font-family: var(--font-main);
   z-index: 50;
   position: relative;
   overflow: hidden;
@@ -68,19 +68,25 @@
 
 .vault-name-rectangle {
   flex: 1;
-  background: var(--bg-card);
+  background: var(--bg-hover);
   border: 1px solid var(--border);
-  padding: 12px 16px;
-  border-radius: 4px;
+  padding: 10px 14px;
+  border-radius: 8px;
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.vault-name-rectangle:hover {
+  border-color: var(--accent);
+  background: rgba(188, 159, 255, 0.05);
 }
 
 
@@ -110,7 +116,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-subtle);
   padding-top: 24px;
 }
 
@@ -119,12 +125,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 12px 12px 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
+  padding: 0 10px 14px 10px;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #565f89;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  opacity: 0.8;
 }
 
 
@@ -170,18 +177,18 @@
 .folder-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  border-radius: 4px;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
-  color: #94949e;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-secondary);
   font-weight: 500;
   position: relative;
 }
 
 .folder-row:hover {
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
 }
 
@@ -189,8 +196,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #787c99;
-  opacity: 0.8;
+  color: var(--text-tertiary);
+  opacity: 0.9;
 }
 
 .folder-name {
@@ -258,20 +265,20 @@
 .note-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  margin: 1px 4px;
-  border-radius: 4px;
+  gap: 10px;
+  padding: 6px 10px;
+  margin: 2px 0;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.1s ease;
-  color: #94949e;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-secondary);
   position: relative;
 }
 
 
 .note-row:hover {
-  background: #262626;
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
 }
 
 .note-row.active {
@@ -310,20 +317,20 @@
 
 .new-note-btn {
   width: 100%;
-  margin-top: 16px;
+  margin-top: 20px;
   padding: 12px;
-  background: transparent;
+  background: var(--bg-hover);
   border: 1px solid var(--border);
   color: var(--text-secondary);
-  border-radius: 10px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .new-note-btn:hover {
@@ -361,13 +368,13 @@
 .sidebar-search-container {
   display: flex;
   align-items: center;
-  background: var(--bg-main);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0 12px;
+  border-radius: 8px;
+  padding: 0 14px;
   margin-bottom: 24px;
   box-sizing: border-box;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 
@@ -479,28 +486,28 @@
 .sidebar-footer {
   margin-top: auto;
   padding-top: 16px;
-  border-top: 1px solid var(--border);
-  margin-bottom: 24px;
+  border-top: 1px solid var(--border-subtle);
+  margin-bottom: 8px;
 }
 
 .sidebar-back-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--text-secondary);
+  gap: 10px;
+  color: var(--text-tertiary);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   cursor: pointer;
-  padding: 8px 12px;
-  transition: all 0.2s ease;
+  padding: 10px 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
   width: 100%;
   box-sizing: border-box;
+  border-radius: 8px;
 }
 
 .sidebar-back-row:hover {
   color: var(--text-primary);
   background: var(--bg-hover);
-  border-radius: 4px;
 }
