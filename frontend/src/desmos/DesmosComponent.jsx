@@ -43,7 +43,9 @@ export default function DesmosComponent(props) {
                 zoomButtons: false,
                 keypad: false,
                 border: false,
-                autosize: true
+                autosize: true,
+                images: false,
+                folders: false
             });
             
             // Restore existing expressions if they exist
@@ -104,7 +106,6 @@ export default function DesmosComponent(props) {
       <div contentEditable={false}>
          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
              <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#888', textTransform: 'uppercase' }}>MATH PLOT</span>
-             <button onClick={() => props.deleteNode()} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '14px' }}>🗑️</button>
          </div>
          <div ref={containerRef} style={{ 
             width: '100%', 

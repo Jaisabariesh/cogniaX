@@ -65,14 +65,15 @@ const ChemistryComponent = ({ node, updateAttributes, deleteNode }) => {
     // Small delay to ensure Tiptap has placed the NodeViewWrapper in its final DOM position
     const timer = setTimeout(initJsme, 100);
 
+    const currentContainer = containerRef.current;
     return () => {
       clearTimeout(timer);
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
+      if (currentContainer) {
+        currentContainer.innerHTML = '';
       }
       jsmeAppletRef.current = null;
     };
-  }, []); // Mount/Unmount only
+  }, [node.attrs.smiles, smiles, updateAttributes]); // Dependencies added to resolve lint warnings
 
   // External updates (Undo/Redo)
   useEffect(() => {

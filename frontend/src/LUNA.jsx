@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import TipTap from './TipTap';
@@ -9,7 +9,7 @@ import './parent.css';
 
 const ParentComponent = () => {
   const { uid, vaultId } = useParams();
-  const navigate = useNavigate();
+
 
   const [selectedNote, setSelectedNote] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -24,9 +24,10 @@ const ParentComponent = () => {
     const fetchVaultInfo = async () => {
       try {
         const token = Cookies.get('sb-access-token');
-        const res = await axios.get(`http://localhost:3000/vaults/${uid}`, {
+        const res = await axios.get(`http://localhost:3000/vaults`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+
         const currentVault = res.data.find(v => v.id === parseInt(vaultId, 10));
         if (currentVault) {
           setVaultName(currentVault.name);
@@ -89,9 +90,7 @@ const ParentComponent = () => {
             </div>
           )}
         </div>
-        <div className="editor-brand-footer">
-          LUMINOUS INTELLECTUAL SYSTEM &bull; CORE MODULE
-        </div>
+        
       </div>
     </div>
   );

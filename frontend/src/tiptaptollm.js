@@ -189,10 +189,69 @@ export function convertNode(node) {
 }
 
 /**
- * Convert a full Tiptap document JSON to LLM-friendly JSON.
+ * Custom stringifier that removes quotes from keys and structural values,
+ * but keeps them for the actual note content.
+ * 
+ * @param {any} obj - The object to stringify
+ * @param {number} indent - Current indentation level
+ * @returns {string}
+ */
+export function stringifyToLLM(obj, indent = 0) {
+    const space = "  ".repeat(indent);
+    const nextSpace = "  ".repeat(indent + 1);
+
+    if (Array.isArray(obj)) {
+        if (obj.length === 0) return "[]";
+
+        // Short arrays of simple content (like list items) can stay on one line
+        const allPrimitives = obj.every(x => typeof x !== 'object' || x === null);
+        if (allPrimitives && obj.length < 10) {
+            return "[" + obj.map(x => typeof x === 'string' ? JSON.stringify(x) : String(x)).join(", ") + "]";
+        }
+
+        return `[\n${obj.map(item => nextSpace + stringifyToLLM(item, indent + 1)).join(",\n")}\n${space}]`;
+    }
+
+    if (typeof obj === "object" && obj !== null) {
+        const entries = Object.entries(obj);
+        if (entries.length === 0) return "{}";
+
+        const parts = entries.map(([key, value]) => {
+            let valStr;
+            // Define what is "content" vs "structure"
+            // Content keys keep their quotes
+            const isContentKey = ["text", "smiles", "latex", "label", "expressions", "items"].includes(key);
+
+            if (isContentKey) {
+                if (Array.isArray(value)) {
+                    valStr = `[${value.map(v => JSON.stringify(v)).join(", ")}]`;
+                } else {
+                    valStr = JSON.stringify(value);
+                }
+            } else if (typeof value === "string") {
+                // Structural strings: remove quotes (e.g. "type": "paragraph" -> type: paragraph)
+                valStr = value;
+            } else if (typeof value === "object" && value !== null) {
+                valStr = stringifyToLLM(value, indent + 1);
+            } else {
+                // Numbers, booleans
+                valStr = String(value);
+            }
+            return `${key}: ${valStr}`;
+        });
+
+        return `{\n${parts.map(p => nextSpace + p).join(",\n")}\n${space}}`;
+    }
+
+    // Default for other types
+    return JSON.stringify(obj);
+}
+
+/**
+ * Convert a full Tiptap document JSON to an LLM-friendly string.
  *
  * @param {Object} tiptapDoc - The full Tiptap doc object ({ type: "doc", content: [...] })
- * @returns {Object} - LLM-friendly doc ({ type: "doc", content: [...] })
+ * @returns {string} - LLM-friendly string representation
  */
 export function tiptapToLLM(tiptapDoc) {
     if (!tiptapDoc || tiptapDoc.type !== "doc") {
@@ -211,5 +270,5 @@ export function tiptapToLLM(tiptapDoc) {
         }
     }
 
-    return { type: "doc", content };
+    return stringifyToLLM({ type: "doc", content });
 }

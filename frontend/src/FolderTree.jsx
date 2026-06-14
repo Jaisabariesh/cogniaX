@@ -2,31 +2,56 @@ import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const FolderRow = React.memo(({ folder, depth, isExpanded, onToggle, onAddNote, onAddFolder, onDelete, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+const FolderRow = React.memo(({ folder, depth, isExpanded, onToggle, onAddNote, onAddFolder, onRename, onDelete, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+
   return (
     <div
       className="folder-item"
       onDragOver={(e) => onDragOver(e, { ...folder, type: 'folder' })}
       onDrop={(e) => onDrop(e, { ...folder, type: 'folder' })}
     >
+
       <div
         className="folder-row"
         draggable
-        style={{ marginLeft: `${depth * 16}px` }}
+
+        style={{ paddingLeft: `${(depth * 16) + 10}px` }}
         onDragStart={(e) => onDragStart(e, { ...folder, type: 'folder' })}
         onDragEnd={onDragEnd}
         onClick={() => onToggle(folder.id)}
       >
-        <span className="folder-icon">{isExpanded ? '📂' : '📁'}</span>
-        <span className="folder-name">{folder.name}</span>
-        <div className="folder-actions">
-          <button onClick={(e) => { e.stopPropagation(); onAddNote(folder.id) }} title="Add Note">+</button>
-          <button onClick={(e) => { e.stopPropagation(); onAddFolder(folder.id) }} title="Add Subfolder">📁+</button>
-          <button 
-            className="delete-folder-btn" 
-            onClick={(e) => { e.stopPropagation(); onDelete(folder.id, e) }} 
-            title="Delete Folder"
-          >×</button>
+        <span className="folder-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </span>
+
+        <span className="folder-name">
+          {folder.name}
+        </span>
+
+        <div className="folder-actions-container">
+          <div className="folder-actions">
+            <button onClick={(e) => { e.stopPropagation(); onAddNote(folder.id) }} title="Add Note">+</button>
+            <button onClick={(e) => { e.stopPropagation(); onAddFolder(folder.id) }} title="Add Subfolder">📁+</button>
+            <button onClick={(e) => { e.stopPropagation(); onRename(folder.id, folder.name) }} title="Rename Folder">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </button>
+            <button 
+              className="delete-folder-btn" 
+              onClick={(e) => { e.stopPropagation(); onDelete(folder.id, e) }} 
+              title="Delete Folder"
+            >×</button>
+          </div>
+
+          <span className={`collapse-icon ${isExpanded ? 'expanded' : ''}`}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+          </span>
         </div>
       </div>
     </div>
@@ -36,32 +61,49 @@ const FolderRow = React.memo(({ folder, depth, isExpanded, onToggle, onAddNote, 
 const NoteRow = React.memo(({ note, depth, isActive, onSelect, onDelete, onDragStart, onDragOver, onDrop, onDragEnd }) => {
   return (
     <div
+      className="note-item"
       onDragOver={(e) => onDragOver(e, { ...note, type: 'note' })}
       onDrop={(e) => onDrop(e, { ...note, type: 'note' })}
     >
+      {depth > 0 && (
+        <div className="connector-line-container" style={{ left: `${(depth - 1) * 16 + 18}px` }}>
+          <div className="connector-line"></div>
+        </div>
+      )}
+
       <div
         draggable
-        style={{ marginLeft: `${depth * 16}px` }}
+        style={{ paddingLeft: `${(depth * 16) + 36}px` }}
         onDragStart={(e) => onDragStart(e, { ...note, type: 'note' })}
         onDragEnd={onDragEnd}
         className={`note-row ${isActive ? 'active' : ''}`}
         onClick={(e) => { e.stopPropagation(); onSelect(note); }}
       >
-        <span className="note-icon">📄</span>
+        <span className="note-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+        </span>
         <span className="note-title">{note.title}</span>
         <button
           className="delete-note-btn"
           onClick={(e) => onDelete(note.id, e)}
+          title="Delete Note"
         >✕</button>
       </div>
     </div>
   );
 });
 
-const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = '' }) => {
+
+const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) => {
+  const selectedNoteId = selectedNote?.id;
   const [folders, setFolders] = useState([]);
   const [allNotes, setAllNotes] = useState([]);
   const [expandedFolders, setExpandedFolders] = useState({});
+
+
 
   const dragItemRef = useRef(null);
   const dragOverItemRef = useRef(null);
@@ -76,19 +118,29 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
       
       const [fRes, nRes] = await Promise.all([
         axios.get(`http://localhost:3000/folders/${vaultId}`, authHeader),
-        axios.get(`http://localhost:3000/notes?uid=${uid}`, authHeader)
+        axios.get(`http://localhost:3000/notes`, authHeader)
+
       ]);
       setFolders(fRes.data);
       setAllNotes(nRes.data.filter(n => n.vault_id === vaultId));
     } catch (err) {
       console.error('Failed to fetch tree data:', err);
     }
-  }, [vaultId, uid]);
+  }, [vaultId]);
 
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Sync live title edits back into allNotes so the sidebar
+  // shows the updated name even after you switch to another note
+  useEffect(() => {
+    if (!selectedNote?.id) return;
+    setAllNotes(prev => prev.map(n =>
+      n.id === selectedNote.id ? { ...n, title: selectedNote.title } : n
+    ));
+  }, [selectedNote?.title, selectedNote?.id]);
 
   const toggleFolder = useCallback((id) => {
     setExpandedFolders(prev => ({ ...prev, [id]: !prev[id] }));
@@ -120,7 +172,7 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
     try {
       const token = Cookies.get('sb-access-token');
       const res = await axios.post(`http://localhost:3000/notes`, {
-        uid,
+
         vault_id: vaultId,
         folder_id: folderId,
         title,
@@ -135,7 +187,7 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
     } catch (err) {
       console.error('Failed to create note:', err);
     }
-  }, [uid, vaultId, onSelectNote, fetchData]);
+  }, [vaultId, onSelectNote, fetchData]);
 
   const handleDeleteNote = useCallback(async (id, e) => {
     e.stopPropagation();
@@ -148,6 +200,22 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
       fetchData();
     } catch (err) {
       console.error('Failed to delete note:', err);
+    }
+  }, [fetchData]);
+
+  const handleRenameFolder = useCallback(async (id, currentName) => {
+    const newName = window.prompt('Rename folder:', currentName);
+    if (!newName || newName === currentName) return;
+    try {
+      const token = Cookies.get('sb-access-token');
+      await axios.patch(`http://localhost:3000/folders/${id}`, {
+        name: newName
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchData();
+    } catch (err) {
+      console.error('Failed to rename folder:', err);
     }
   }, [fetchData]);
 
@@ -228,7 +296,7 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
     });
   }, []);
 
-  const onDrop = useCallback(async (e, targetObjParam) => {
+  const onDrop = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -304,6 +372,9 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
     }
 
     const flat = [];
+    
+
+
     const rootFolders = folders.filter(f => !f.parent_id).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)).map(f => ({ ...f, type: 'folder' }));
     const topNotes = allNotes.filter(n => !n.folder_id).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)).map(n => ({ ...n, type: 'note' }));
 
@@ -322,6 +393,7 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
     traverse(startItems, 0);
     return flat;
   }, [folders, allNotes, expandedFolders, searchQuery]);
+
 
   // Keep ref up to date avoiding dependency
   useEffect(() => {
@@ -363,19 +435,21 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
               await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: null }, authHeader);
             }
             fetchData();
-          } catch (err) { }
+          } catch (err) { console.error('Root drop error:', err); }
         }}
       >
-        {flatNodes.map(node => (
-          node.type === 'folder'
+        {flatNodes.map(node => {
+          return node.type === 'folder'
             ? <FolderRow
               key={`folder-${node.id}`}
               folder={node}
               depth={node.depth}
               isExpanded={expandedFolders[node.id]}
               onToggle={toggleFolder}
+
               onAddNote={handleCreateNote}
               onAddFolder={handleCreateFolder}
+              onRename={handleRenameFolder}
               onDelete={handleDeleteFolder}
               onDragStart={onDragStart}
               onDragOver={onDragOver}
@@ -384,7 +458,7 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
             />
             : <NoteRow
               key={`note-${node.id}`}
-              note={node}
+              note={selectedNoteId === node.id ? { ...node, title: selectedNote?.title ?? node.title } : node}
               depth={node.depth}
               isActive={selectedNoteId === node.id}
               onSelect={onSelectNote}
@@ -394,7 +468,8 @@ const FolderTree = ({ vaultId, uid, onSelectNote, selectedNoteId, searchQuery = 
               onDrop={onDrop}
               onDragEnd={onDragEnd}
             />
-        ))}
+        })}
+
 
         {flatNodes.length === 0 && searchQuery && (
           <div style={{ padding: '16px 10px', color: 'var(--text-dim)', fontSize: '0.85rem', textAlign: 'center' }}>No results found</div>

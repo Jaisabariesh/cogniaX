@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 
-const KonvaComponent = ({ node, updateAttributes, deleteNode }) => {
+const KonvaComponent = ({ node, updateAttributes }) => {
   const { shapes: initialShapes, height: initialHeight } = node.attrs;
   const containerRef = useRef(null);
   const stageRef = useRef(null);
@@ -9,9 +9,78 @@ const KonvaComponent = ({ node, updateAttributes, deleteNode }) => {
   const transformerRef = useRef(null);
   
   const [height, setHeight] = useState(initialHeight || 400);
-  const [shapes, setShapes] = useState(JSON.parse(initialShapes || '[]'));
 
   const [isReady, setIsReady] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing) return;
+      const hostRect = containerRef.current.getBoundingClientRect();
+      const newHeight = Math.max(100, e.clientY - hostRect.top);
+      setHeight(newHeight);
+    };
+
+    const handleMouseUp = () => setIsResizing(false);
+
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
+  const saveState = useCallback(() => {
+    if (!layerRef.current) return;
+    const children = layerRef.current.getChildren().filter(c => c.className !== 'Transformer');
+    const newState = children.map(c => ({
+      ...c.attrs,
+      type: c.className.toLowerCase()
+    }));
+
+    updateAttributes({ 
+        shapes: JSON.stringify(newState),
+        height: height
+    });
+  }, [updateAttributes, height]);
+
+  // Helper to add a shape object to the Konva layer
+  const addShapeToLayer = useCallback((data, layer) => {
+    const Konva = window.Konva;
+    const targetLayer = layer || layerRef.current;
+    if (!Konva || !targetLayer) return;
+
+    let shape;
+    if (data.type === 'rect') {
+      shape = new Konva.Rect({ ...data, draggable: true });
+    } else if (data.type === 'circle') {
+      shape = new Konva.Circle({ ...data, draggable: true });
+    } else if (data.type === 'ellipse') {
+      shape = new Konva.Ellipse({ ...data, draggable: true });
+    } else if (data.type === 'regularpolygon') {
+      shape = new Konva.RegularPolygon({ ...data, draggable: true });
+    } else if (data.type === 'line') {
+      shape = new Konva.Line({ ...data, draggable: true, hitStrokeWidth: 15 });
+    } else if (data.type === 'text') {
+      shape = new Konva.Text({ ...data, draggable: true });
+      shape.on('dblclick', () => {
+        const text = prompt('Edit text:', shape.text());
+        if (text !== null) {
+          shape.text(text);
+          saveState();
+        }
+      });
+    }
+
+    if (shape) {
+      shape.on('dragend transformend', saveState);
+      targetLayer.add(shape);
+      targetLayer.draw();
+    }
+  }, [saveState]);
 
   // Logic to load Konva manually
   useEffect(() => {
@@ -31,6 +100,12 @@ const KonvaComponent = ({ node, updateAttributes, deleteNode }) => {
 
       if (stageRef.current) return; // Already init
 
+      // Prevent TipTap from intercepting Konva drag events
+      const stopEvent = (e) => e.stopPropagation();
+      containerRef.current.addEventListener('mousedown', stopEvent);
+      containerRef.current.addEventListener('touchstart', stopEvent);
+      containerRef.current.addEventListener('pointerdown', stopEvent);
+
       // Create Stage
       const stage = new window.Konva.Stage({
         container: containerRef.current,
@@ -41,28 +116,37 @@ const KonvaComponent = ({ node, updateAttributes, deleteNode }) => {
       const layer = new window.Konva.Layer();
       stage.add(layer);
       
-      const tr = new window.Konva.Transformer();
-      layer.add(tr);
+      const transformer = new window.Konva.Transformer();
+      layer.add(transformer);
 
       stageRef.current = stage;
       layerRef.current = layer;
-      transformerRef.current = tr;
+      transformerRef.current = transformer;
 
       // Render initial shapes
       const parsedShapes = JSON.parse(initialShapes || '[]');
       parsedShapes.forEach(shapeData => {
-        addShapeToLayer(shapeData, layer, tr);
+        addShapeToLayer(shapeData, layer);
       });
 
       setIsReady(true);
 
       // Selection logic
-      stage.on('click tap', (e) => {
+      stage.on('mousedown touchstart', (e) => {
         if (e.target === stage) {
-          tr.nodes([]);
+          transformerRef.current.nodes([]);
+          layerRef.current.batchDraw();
           return;
         }
-        tr.nodes([e.target]);
+        
+        // Prevent Transformer from trying to transform its own resize/rotate handles
+        if (e.target.getParent() && e.target.getParent().className === 'Transformer') {
+          return; 
+        }
+
+        transformerRef.current.nodes([e.target]);
+        transformerRef.current.moveToTop();
+        layerRef.current.batchDraw();
       });
     };
 
@@ -71,56 +155,9 @@ const KonvaComponent = ({ node, updateAttributes, deleteNode }) => {
       clearTimeout(timer);
       if (stageRef.current) stageRef.current.destroy();
     };
-  }, []); // Only on mount
+  }, [height, initialShapes, addShapeToLayer]); // Only on mount/initial hydration
 
-  // Helper to add a shape object to the Konva layer
-  const addShapeToLayer = (data, layer, tr) => {
-    const Konva = window.Konva;
-    const targetLayer = layer || layerRef.current;
-    if (!Konva || !targetLayer) return;
 
-    let shape;
-    if (data.type === 'rect') {
-      shape = new Konva.Rect({ ...data, draggable: true });
-    } else if (data.type === 'circle') {
-      shape = new Konva.Circle({ ...data, draggable: true });
-    } else if (data.type === 'ellipse') {
-      shape = new Konva.Ellipse({ ...data, draggable: true });
-    } else if (data.type === 'regularpolygon') {
-      shape = new Konva.RegularPolygon({ ...data, draggable: true });
-    } else if (data.type === 'line') {
-      shape = new Konva.Line({ ...data, draggable: true, hitStrokeWidth: 15 }); // larger hit area for easier selecting
-    } else if (data.type === 'text') {
-      shape = new Konva.Text({ ...data, draggable: true });
-      shape.on('dblclick', () => {
-        const text = prompt('Edit text:', shape.text());
-        if (text !== null) {
-          shape.text(text);
-          saveState();
-        }
-      });
-    }
-
-    if (shape) {
-      shape.on('dragend transformend', saveState);
-      targetLayer.add(shape);
-      targetLayer.draw();
-    }
-  };
-
-  const saveState = () => {
-    if (!layerRef.current) return;
-    const children = layerRef.current.getChildren().filter(c => c.className !== 'Transformer');
-    const newState = children.map(c => ({
-      ...c.attrs,
-      type: c.className.toLowerCase()
-    }));
-    setShapes(newState);
-    updateAttributes({ 
-        shapes: JSON.stringify(newState),
-        height: height
-    });
-  };
 
   const addNew = (type) => {
     let data;
@@ -150,37 +187,55 @@ const KonvaComponent = ({ node, updateAttributes, deleteNode }) => {
         stageRef.current.height(height);
         updateAttributes({ height });
     }
-  }, [height]);
+  }, [height, updateAttributes]);
 
   return (
     <NodeViewWrapper className="konva-block">
-      <div className="konva-container" style={{ background: 'white', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden', minHeight: '300px' }}>
-        <div className="konva-toolbar" style={{ padding: '8px', background: '#f5f5f5', borderBottom: '1px solid #ddd', display: 'flex', gap: '8px' }}>
-          <button onClick={() => addNew('rect')} className="konva-btn">⬜ Rect</button>
-          <button onClick={() => addNew('circle')} className="konva-btn">⭕ Circle</button>
-          <button onClick={() => addNew('ellipse')} className="konva-btn">🥖 Ellipse</button>
-          <button onClick={() => addNew('triangle')} className="konva-btn">🔺 Triangle</button>
-          <button onClick={() => addNew('line')} className="konva-btn">➖ Line</button>
-          <button onClick={() => addNew('text')} className="konva-btn">🔤 Text</button>
-          <button onClick={() => { layerRef.current.destroyChildren(); layerRef.current.add(transformerRef.current); layerRef.current.draw(); saveState(); }} className="konva-btn delete">🧹 Clear</button>
+      <div className="konva-container">
+        <div className="konva-toolbar">
+          <button onClick={() => addNew('rect')} className="konva-btn">Rect</button>
+          <button onClick={() => addNew('circle')} className="konva-btn">Circle</button>
+          <button onClick={() => addNew('ellipse')} className="konva-btn">Ellipse</button>
+          <button onClick={() => addNew('triangle')} className="konva-btn">Triangle</button>
+          <button onClick={() => addNew('line')} className="konva-btn">Line</button>
+          <button onClick={() => addNew('text')} className="konva-btn">Text</button>
           
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button 
-              onClick={() => window.confirm("Delete drawing board?") && deleteNode()}
-              title="Delete Entire Block"
-              style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px', fontSize: '14px', marginRight: '10px' }}
-            >
-              🗑️
+          <div style={{ flexGrow: 1 }} />
+
+          <button onClick={() => { 
+                const selectedNodes = transformerRef.current.nodes();
+                if (selectedNodes.length > 0) {
+                    selectedNodes.forEach(node => node.destroy());
+                    transformerRef.current.nodes([]);
+                    layerRef.current.batchDraw();
+                    saveState();
+                }
+            }} className="konva-btn delete">
+                <span style={{ fontSize: '14px' }}>🗑️</span>
+                Delete
             </button>
-            <span style={{ fontSize: '11px', color: '#666' }}>Extend:</span>
-            <input 
-              type="range" min="200" max="1200" value={height} 
-              onChange={(e) => setHeight(parseInt(e.target.value))} 
-            />
-          </div>
         </div>
-        {!isReady && <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>Initializing drawing board...</div>}
-        <div ref={containerRef} className="konva-host" style={{ display: isReady ? 'block' : 'none' }}></div>
+        {!isReady && <div style={{ padding: '60px', textAlign: 'center', color: '#71717a', background: '#18181b', fontSize: '13px' }}>
+            <div className="spinner" style={{ marginBottom: '10px' }}>⚡</div>
+            Initializing Canvas...
+        </div>}
+        <div ref={containerRef} className="konva-host" style={{ display: isReady ? 'block' : 'none', minHeight: '100px' }}></div>
+        <div 
+          onMouseDown={(e) => { e.preventDefault(); setIsResizing(true); }}
+          className="konva-resize-handle"
+          style={{ 
+            height: '16px', 
+            background: '#27272a', 
+            cursor: 'ns-resize', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            userSelect: 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          <div style={{ width: '40px', height: '4px', borderTop: '2px solid #52525b', borderBottom: '2px solid #52525b' }}></div>
+        </div>
       </div>
     </NodeViewWrapper>
   );

@@ -12,7 +12,7 @@ async function goToLogin(page) {
 // ─── 1. Login page loads and shows "Hello Again!" ─────────────────────────────
 test('1 · Login page renders correctly', async ({ page }) => {
   await goToLogin(page);
-  await expect(page).toHaveTitle(/COGNIA|Vite/i);
+  await expect(page).toHaveTitle(/LUNA|Vite/i);
   await expect(page.locator('h1.title')).toContainText('Hello Again!');
 });
 
@@ -131,9 +131,9 @@ test('15 · User can type into email and password fields', async ({ page }) => {
   await goToLogin(page);
   const emailInput = page.locator('input[placeholder="Email"]').first();
   const passInput = page.locator('input[placeholder="Password"]').first();
-  await emailInput.fill('test@cognia.io');
+  await emailInput.fill('test@luna.io');
   await passInput.fill('supersecret');
-  await expect(emailInput).toHaveValue('test@cognia.io');
+  await expect(emailInput).toHaveValue('test@luna.io');
   await expect(passInput).toHaveValue('supersecret');
 });
 
@@ -143,9 +143,9 @@ test('16 · User can type into signup email and password fields', async ({ page 
   await page.click('button.right');
   const emailInput = page.locator('input[placeholder="Email"]').first();
   const passInput = page.locator('input[placeholder="Password"]').first();
-  await emailInput.fill('new@cognia.io');
+  await emailInput.fill('new@luna.io');
   await passInput.fill('password123');
-  await expect(emailInput).toHaveValue('new@cognia.io');
+  await expect(emailInput).toHaveValue('new@luna.io');
   await expect(passInput).toHaveValue('password123');
 });
 

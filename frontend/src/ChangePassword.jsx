@@ -79,6 +79,7 @@ const ChangePassword = () => {
         }, 2000);
       }
     } catch (err) {
+      console.error('Unexpected error during password change:', err);
       setMessageType('error');
       setMessage('An unexpected error occurred.');
     } finally {

@@ -12,6 +12,10 @@ const Razorpay = require('razorpay');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
+const { getEncoding } = require('js-tiktoken');
+
+const enc = getEncoding('cl100k_base');
+
 
 const razorpay = new Razorpay({
   key_id: (process.env.RAZORPAY_KEY_ID || '').trim(),
@@ -26,8 +30,8 @@ if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
   console.log('💳 Razorpay Secret:', `**** (Length: ${process.env.RAZORPAY_KEY_SECRET.length})`);
 }
 
-// Order Tracking (Strict Lifecycle)
-const activeOrders = new Map();
+// Order Tracking (Stored in DB)
+// const activeOrders = new Map(); // Removed: Replaced with DB persistence
 
 const app = express();
 const port = 3000;
@@ -74,6 +78,17 @@ pool.connect((err, client, release) => {
     return console.error('❌ Error connecting to PostgreSQL:', err.stack);
   }
   console.log('✅ Connected to PostgreSQL!');
+  
+  // Ensure pending_orders table exists for Razorpay transactions
+  client.query(`
+    CREATE TABLE IF NOT EXISTS pending_orders (
+      order_id TEXT PRIMARY KEY,
+      uid UUID NOT NULL,
+      amount_paise INTEGER NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+  `).catch(e => console.error('❌ Could not create pending_orders table:', e));
+  
   release();
 });
 
@@ -117,15 +132,13 @@ async function authenticateUser(req, res, next) {
 }
 
 // --- Token & Credit Helpers ---
-const calculateTokens = (text) => Math.ceil((text || '').length / 4);
+const calculateTokens = (text) => enc.encode(text || '').length;
 const getEffectiveTokens = (tokens) => tokens * 1.1;
 
-const calculateCost = (inputChars, outputChars) => {
-  const inputTokens = getEffectiveTokens(calculateTokens(inputChars));
-  const outputTokens = getEffectiveTokens(calculateTokens(outputChars));
-
+const calculateCostFromTokens = (inputTokens, outputTokens) => {
+  // Directly calculate cost based on raw token counts
   const inputCost = inputTokens / 2000;
-  const outputCost = outputTokens / 100;
+  const outputCost = outputTokens / 200; // Updated: 200 tokens = 1 credit
 
   return {
     inputCost,
@@ -135,6 +148,14 @@ const calculateCost = (inputChars, outputChars) => {
     outputTokens
   };
 };
+
+
+const calculateCost = (inputChars, outputChars) => {
+  const inputTokens = calculateTokens(inputChars);
+  const outputTokens = calculateTokens(outputChars);
+  return calculateCostFromTokens(inputTokens, outputTokens);
+};
+
 
 // Catch any other unhandled errors so the server never silently crashes
 process.on('uncaughtException', (err) => {
@@ -186,48 +207,38 @@ app.get('/user/me', authenticateUser, async (req, res) => {
   }
 });
 
-app.post('/use-credit/:uid', async (req, res) => {
-  const { uid } = req.params;
-  try {
-    const user = await getOrInitUser(uid);
-    if (user.credits <= 0) {
-      return res.status(403).json({ error: 'No credits remaining' });
-    }
-    const result = await pool.query(
-      'UPDATE users SET credits = credits - 1 WHERE uid = $1 RETURNING credits',
-      [uid]
-    );
-    res.json({ message: 'Credit used', remaining: result.rows[0].credits });
-  } catch (err) {
-    console.error(`❌ POST /use-credit/${uid} error:`, err);
-    res.status(500).json({ error: 'Failed to use credit', details: err.message });
-  }
-});
+// app.post('/use-credit/:uid', async (req, res) => { ... }) // MOVED AND SECURED
+
 
 // Vaults Endpoints
-app.get('/vaults/:uid', authenticateUser, async (req, res) => {
+app.get('/vaults', authenticateUser, async (req, res) => {
+  const uid = req.user.id;
   try {
-    const result = await pool.query('SELECT * FROM vaults WHERE uid = $1 ORDER BY created DESC', [req.params.uid]);
+    await getOrInitUser(uid); // Ensure user exists locally
+    const result = await pool.query('SELECT * FROM vaults WHERE uid = $1 ORDER BY created DESC', [uid]);
     res.json(result.rows);
   } catch (err) {
-    console.error(`❌ GET /vaults/${req.params.uid} error:`, err);
+    console.error(`❌ GET /vaults error:`, err);
     res.status(500).json({ error: 'Failed to fetch vaults', details: err.message });
   }
 });
 
-app.post('/vaults/:uid', authenticateUser, async (req, res) => {
+app.post('/vaults', authenticateUser, async (req, res) => {
+  const uid = req.user.id;
   const { name } = req.body;
   try {
+    await getOrInitUser(uid); // Ensure user exists locally
     const result = await pool.query(
       'INSERT INTO vaults (uid, name) VALUES ($1, $2) RETURNING *',
-      [req.params.uid, name]
+      [uid, name]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(`❌ POST /vaults/${req.params.uid} error:`, err);
+    console.error(`❌ POST /vaults error:`, err);
     res.status(500).json({ error: 'Failed to create vault', details: err.message });
   }
 });
+
 
 app.patch('/folders/:id', authenticateUser, async (req, res) => {
   const { id } = req.params;
@@ -245,8 +256,9 @@ app.patch('/folders/:id', authenticateUser, async (req, res) => {
 
   if (fields.length === 1) return res.status(400).json({ error: 'No fields to update' });
 
-  const query = `UPDATE folders SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`;
-  values.push(id);
+  const query = `UPDATE folders SET ${fields.join(', ')} WHERE id = $${idx} AND vault_id IN (SELECT id FROM vaults WHERE uid = $${idx + 1}) RETURNING *`;
+  values.push(id, req.user.id);
+
 
   try {
     const result = await pool.query(query, values);
@@ -261,8 +273,10 @@ app.patch('/folders/:id', authenticateUser, async (req, res) => {
 });
 
 app.delete('/folders/:id', authenticateUser, async (req, res) => {
+  const uid = req.user.id;
   try {
-    await pool.query('DELETE FROM folders WHERE id = $1', [req.params.id]);
+    const result = await pool.query('DELETE FROM folders WHERE id = $1 AND vault_id IN (SELECT id FROM vaults WHERE uid = $2) RETURNING *', [req.params.id, uid]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Folder not found or unauthorized' });
     res.json({ message: 'Folder deleted' });
   } catch (err) {
     console.error(`❌ DELETE /folders/${req.params.id} error:`, err);
@@ -271,8 +285,10 @@ app.delete('/folders/:id', authenticateUser, async (req, res) => {
 });
 
 app.delete('/vaults/:id', authenticateUser, async (req, res) => {
+  const uid = req.user.id;
   try {
-    await pool.query('DELETE FROM vaults WHERE id = $1', [req.params.id]);
+    const result = await pool.query('DELETE FROM vaults WHERE id = $1 AND uid = $2 RETURNING *', [req.params.id, uid]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Vault not found or unauthorized' });
     res.json({ message: 'Vault deleted' });
   } catch (err) {
     console.error(`❌ DELETE /vaults/${req.params.id} error:`, err);
@@ -280,12 +296,14 @@ app.delete('/vaults/:id', authenticateUser, async (req, res) => {
   }
 });
 
+
 // Folders Endpoints
 app.get('/folders/:vault_id', authenticateUser, async (req, res) => {
+  const uid = req.user.id;
   try {
     const result = await pool.query(
-      'SELECT * FROM folders WHERE vault_id = $1 ORDER BY sort_order ASC, created DESC',
-      [req.params.vault_id]
+      'SELECT f.* FROM folders f JOIN vaults v ON f.vault_id = v.id WHERE f.vault_id = $1 AND v.uid = $2 ORDER BY f.sort_order ASC, f.created DESC',
+      [req.params.vault_id, uid]
     );
     res.json(result.rows);
   } catch (err) {
@@ -295,8 +313,13 @@ app.get('/folders/:vault_id', authenticateUser, async (req, res) => {
 });
 
 app.post('/folders', authenticateUser, async (req, res) => {
+  const uid = req.user.id;
   const { vault_id, parent_id, name, sort_order } = req.body;
   try {
+    // Verify vault ownership
+    const vaultCheck = await pool.query('SELECT id FROM vaults WHERE id = $1 AND uid = $2', [vault_id, uid]);
+    if (vaultCheck.rowCount === 0) return res.status(403).json({ error: 'Unauthorized vault access' });
+
     const result = await pool.query(
       'INSERT INTO folders (vault_id, parent_id, name, sort_order) VALUES ($1, $2, $3, $4) RETURNING *',
       [vault_id, parent_id || null, name, sort_order || 0]
@@ -308,11 +331,14 @@ app.post('/folders', authenticateUser, async (req, res) => {
   }
 });
 
+
 // Notes Endpoints
 app.get('/notes', authenticateUser, async (req, res) => {
-  const { uid, vault_id, folder_id } = req.query;
+  const uid = req.user.id;
+  const { vault_id, folder_id } = req.query;
   let query = 'SELECT * FROM notes WHERE uid = $1';
   const params = [uid];
+
 
   if (vault_id) {
     query += ' AND vault_id = $2';
@@ -337,10 +363,11 @@ app.get('/notes', authenticateUser, async (req, res) => {
 });
 
 app.get('/notes/:id', authenticateUser, async (req, res) => {
+  const uid = req.user.id;
   try {
-    const result = await pool.query('SELECT * FROM notes WHERE id = $1', [req.params.id]);
+    const result = await pool.query('SELECT * FROM notes WHERE id = $1 AND uid = $2', [req.params.id, uid]);
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: 'Note not found' });
+      return res.status(404).json({ error: 'Note not found or unauthorized' });
     }
     res.json(result.rows[0]);
   } catch (err) {
@@ -350,8 +377,13 @@ app.get('/notes/:id', authenticateUser, async (req, res) => {
 });
 
 app.post('/notes', authenticateUser, async (req, res) => {
-  const { uid, vault_id, folder_id, title, content, sort_order } = req.body;
+  const uid = req.user.id;
+  const { vault_id, folder_id, title, content, sort_order } = req.body;
   try {
+    // Verify vault ownership
+    const vaultCheck = await pool.query('SELECT id FROM vaults WHERE id = $1 AND uid = $2', [vault_id, uid]);
+    if (vaultCheck.rowCount === 0) return res.status(403).json({ error: 'Unauthorized vault access' });
+
     const result = await pool.query(
       `INSERT INTO notes (uid, vault_id, folder_id, title, content, sort_order, created, updated)
        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
@@ -365,14 +397,26 @@ app.post('/notes', authenticateUser, async (req, res) => {
   }
 });
 
+
 app.patch('/notes/:id/move', authenticateUser, async (req, res) => {
   const { id } = req.params;
   const { folder_id } = req.body;
+  const uid = req.user.id;
   try {
+    // Verify destination folder ownership if folder_id is provided
+    if (folder_id !== null) {
+      const folderCheck = await pool.query(
+        'SELECT id FROM folders WHERE id = $1 AND vault_id IN (SELECT id FROM vaults WHERE uid = $2)',
+        [folder_id, uid]
+      );
+      if (folderCheck.rowCount === 0) return res.status(403).json({ error: 'Unauthorized destination folder access' });
+    }
+
     const result = await pool.query(
-      'UPDATE notes SET folder_id = $1, updated = NOW() WHERE id = $2 RETURNING *',
-      [folder_id, id]
+      'UPDATE notes SET folder_id = $1, updated = NOW() WHERE id = $2 AND uid = $3 RETURNING *',
+      [folder_id, id, uid]
     );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Note not found or unauthorized' });
     res.json(result.rows[0]);
   } catch (err) {
     console.error(`❌ PATCH /notes/${id}/move error:`, err);
@@ -380,20 +424,33 @@ app.patch('/notes/:id/move', authenticateUser, async (req, res) => {
   }
 });
 
+
 app.patch('/folders/:id/move', authenticateUser, async (req, res) => {
   const { id } = req.params;
   const { parent_id } = req.body;
+  const uid = req.user.id;
   try {
+    // Verify destination folder ownership if parent_id is provided
+    if (parent_id !== null) {
+      const folderCheck = await pool.query(
+        'SELECT id FROM folders WHERE id = $1 AND vault_id IN (SELECT id FROM vaults WHERE uid = $2)',
+        [parent_id, uid]
+      );
+      if (folderCheck.rowCount === 0) return res.status(403).json({ error: 'Unauthorized destination parent folder access' });
+    }
+
     const result = await pool.query(
-      'UPDATE folders SET parent_id = $1, updated = NOW() WHERE id = $2 RETURNING *',
-      [parent_id, id]
+      'UPDATE folders SET parent_id = $1, updated = NOW() WHERE id = $2 AND vault_id IN (SELECT id FROM vaults WHERE uid = $3) RETURNING *',
+      [parent_id, id, uid]
     );
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Folder not found or unauthorized' });
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(`❌ PATCH /folders/${id}/move error:`, err);
+    console.error(`❌ PATCH /folders/${id/move} error:`, err);
     res.status(500).json({ error: 'Failed to move folder', details: err.message });
   }
 });
+
 
 app.post('/reorder', authenticateUser, async (req, res, next) => {
   const { items } = req.body;
@@ -405,9 +462,11 @@ app.post('/reorder', authenticateUser, async (req, res, next) => {
     await client.query('BEGIN');
     for (const item of items) {
       if (item.type === 'folder') {
-        await client.query('UPDATE folders SET sort_order = $1, updated = NOW() WHERE id = $2', [item.sort_order, item.id]);
+        const folderQuery = 'UPDATE folders SET sort_order = $1, updated = NOW() WHERE id = $2 AND vault_id IN (SELECT id FROM vaults WHERE uid = $3)';
+        await client.query(folderQuery, [item.sort_order, item.id, req.user.id]);
       } else if (item.type === 'note') {
-        await client.query('UPDATE notes SET sort_order = $1, updated = NOW() WHERE id = $2', [item.sort_order, item.id]);
+        const noteQuery = 'UPDATE notes SET sort_order = $1, updated = NOW() WHERE id = $2 AND uid = $3';
+        await client.query(noteQuery, [item.sort_order, item.id, req.user.id]);
       }
     }
     await client.query('COMMIT');
@@ -438,10 +497,20 @@ app.patch('/notes/:id', authenticateUser, async (req, res) => {
 
   if (fields.length === 1) return res.status(400).json({ error: 'No fields to update' });
 
-  const query = `UPDATE notes SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`;
-  values.push(id);
+  const query = `UPDATE notes SET ${fields.join(', ')} WHERE id = $${idx} AND uid = $${idx + 1} RETURNING *`;
+  values.push(id, req.user.id);
+
 
   try {
+    // If folder_id is updated, verify authorization
+    if (folder_id !== undefined && folder_id !== null) {
+      const folderCheck = await pool.query(
+        'SELECT id FROM folders WHERE id = $1 AND vault_id IN (SELECT id FROM vaults WHERE uid = $2)',
+        [folder_id, req.user.id]
+      );
+      if (folderCheck.rowCount === 0) return res.status(403).json({ error: 'Unauthorized folder access' });
+    }
+
     const result = await pool.query(query, values);
     console.log(`📝 PATCH /notes/${id} — rowCount: ${result.rowCount}, values sent:`, values.slice(0, -1).map(v => typeof v === 'object' ? '[JSONB]' : v));
     if (result.rowCount === 0) {
@@ -455,8 +524,10 @@ app.patch('/notes/:id', authenticateUser, async (req, res) => {
 });
 
 app.delete('/notes/:id', authenticateUser, async (req, res) => {
+  const uid = req.user.id;
   try {
-    await pool.query('DELETE FROM notes WHERE id = $1', [req.params.id]);
+    const result = await pool.query('DELETE FROM notes WHERE id = $1 AND uid = $2 RETURNING *', [req.params.id, uid]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Note not found or unauthorized' });
     res.json({ message: 'Note deleted' });
   } catch (err) {
     console.error(`❌ DELETE /notes/${req.params.id} error:`, err);
@@ -464,20 +535,60 @@ app.delete('/notes/:id', authenticateUser, async (req, res) => {
   }
 });
 
-// --- Razorpay Payment Integration ---
-app.get('/credits/:uid', async (req, res) => {
+
+// --- Credit Endpoints ---
+app.get('/credits', authenticateUser, async (req, res) => {
   try {
-    const user = await getOrInitUser(req.params.uid);
+    const user = await getOrInitUser(req.user.id);
     res.json({ credits: user.credits });
   } catch (err) { res.status(500).json({ error: 'Failed to fetch credits' }); }
 });
 
-app.post('/create-razorpay-order', sensitiveLimiter, async (req, res) => {
+app.post('/use-credit', authenticateUser, async (req, res) => {
+  const uid = req.user.id;
+  let client;
   try {
-    const { amount, uid } = req.body;
-    if (!amount || isNaN(amount) || !uid) {
-      return res.status(400).json({ error: 'Valid amount and UID are required' });
+    await getOrInitUser(uid); // Ensure user exists
+    
+    client = await pool.connect();
+    await client.query('BEGIN');
+    
+    const userRes = await client.query('SELECT credits FROM users WHERE uid = $1 FOR UPDATE', [uid]);
+    if (userRes.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'User profile not found' });
     }
+    
+    const currentCredits = parseFloat(userRes.rows[0].credits);
+    if (currentCredits <= 0) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'No credits remaining' });
+    }
+    
+    const result = await client.query(
+      'UPDATE users SET credits = credits - 1 WHERE uid = $1 RETURNING credits',
+      [uid]
+    );
+    await client.query('COMMIT');
+    res.json({ message: 'Credit used', remaining: result.rows[0].credits });
+  } catch (err) {
+    if (client) await client.query('ROLLBACK').catch(() => {});
+    console.error(`❌ POST /use-credit error:`, err);
+    res.status(500).json({ error: 'Failed to use credit', details: err.message });
+  } finally {
+    if (client) client.release();
+  }
+});
+
+
+app.post('/create-razorpay-order', authenticateUser, sensitiveLimiter, async (req, res) => {
+  try {
+    const { amount } = req.body;
+    const uid = req.user.id;
+    if (!amount || isNaN(amount) || amount < 1 || amount > 100000) {
+      return res.status(400).json({ error: 'Valid amount between ₹1 and ₹100,000 is required' });
+    }
+
 
     // ENSURE PAISÉ (Integer Only)
     const amountPaise = Math.round(parseFloat(amount) * 100);
@@ -491,17 +602,14 @@ app.post('/create-razorpay-order', sensitiveLimiter, async (req, res) => {
 
     const order = await razorpay.orders.create(options);
 
-    // TRACK ORDER LOCALLY FOR VERIFICATION
-    activeOrders.set(order.id, {
-      uid,
-      amountPaise,
-      createdAt: Date.now()
-    });
+    // TRACK ORDER IN DB FOR VERIFICATION
+    await pool.query(
+      'INSERT INTO pending_orders (order_id, uid, amount_paise) VALUES ($1, $2, $3)',
+      [order.id, uid, amountPaise]
+    );
 
     // Cleanup old orders (older than 30 mins)
-    for (const [id, data] of activeOrders.entries()) {
-      if (Date.now() - data.createdAt > 30 * 60 * 1000) activeOrders.delete(id);
-    }
+    await pool.query("DELETE FROM pending_orders WHERE created_at < NOW() - INTERVAL '30 minutes'");
 
     console.log(`✅ Razorpay order created for ${uid}:`, JSON.stringify(order, null, 2));
     console.log(`🔑 Using Key ID: ${process.env.RAZORPAY_KEY_ID}`);
@@ -520,25 +628,26 @@ app.post('/create-razorpay-order', sensitiveLimiter, async (req, res) => {
   }
 });
 
-app.post('/verify-payment', sensitiveLimiter, async (req, res) => {
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, uid, creditsToAdd } = req.body;
+app.post('/verify-payment', authenticateUser, sensitiveLimiter, async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  const uid = req.user.id;
 
   // STRICT FIELD CHECK
-  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !uid || !creditsToAdd) {
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
     console.warn('❌ Verification rejected: Missing required fields');
     return res.status(400).json({ error: 'Missing payment details' });
   }
 
   // LIFECYCLE CHECK: Does this order exist in our system?
-  const trackedOrder = activeOrders.get(razorpay_order_id);
-  if (!trackedOrder) {
+  const orderRes = await pool.query('SELECT * FROM pending_orders WHERE order_id = $1', [razorpay_order_id]);
+  if (orderRes.rowCount === 0) {
     console.warn(`❌ Verification rejected: Order ${razorpay_order_id} not found/expired`);
     return res.status(400).json({ error: 'Order session expired or invalid' });
   }
+  const trackedOrder = orderRes.rows[0];
 
   // TRANSACTION DATA VALIDATION
-  const expectedPaise = Math.round(parseFloat(creditsToAdd) * 100);
-  if (trackedOrder.uid !== uid || trackedOrder.amountPaise !== expectedPaise) {
+  if (trackedOrder.uid !== uid) {
     console.warn(`❌ Verification rejected: Data mismatch for order ${razorpay_order_id}`);
     return res.status(400).json({ error: 'Payment data mismatch' });
   }
@@ -553,9 +662,14 @@ app.post('/verify-payment', sensitiveLimiter, async (req, res) => {
   console.log(`🔐 Verification for ${razorpay_order_id}: Generated[...${generated.slice(-10)}] vs Received[...${razorpay_signature.slice(-10)}]`);
 
   if (generated === razorpay_signature) {
+    let client;
     try {
+      client = await pool.connect();
+      await client.query('BEGIN');
+      
+      const creditsToAdd = Math.round(trackedOrder.amount_paise / 100);
       const credits = parseInt(creditsToAdd); // PURE INTEGER
-      const result = await pool.query(
+      const result = await client.query(
         `INSERT INTO users (uid, credits, last_credit_reset)
          VALUES ($1, $2, NOW())
          ON CONFLICT (uid)
@@ -564,19 +678,23 @@ app.post('/verify-payment', sensitiveLimiter, async (req, res) => {
         [uid.trim(), credits]
       );
 
-      await pool.query(
+      await client.query(
         'INSERT INTO credit_transactions (uid, amount_credits, razorpay_order_id, razorpay_payment_id) VALUES ($1, $2, $3, $4)',
         [uid, credits, razorpay_order_id, razorpay_payment_id]
       );
 
       // Successfully processed: cleanup
-      activeOrders.delete(razorpay_order_id);
+      await client.query('DELETE FROM pending_orders WHERE order_id = $1', [razorpay_order_id]);
+      await client.query('COMMIT');
 
       console.log(`✅ Payment verified for ${uid}. New balance: ${result.rows[0].credits}`);
       res.json({ success: true, newBalance: result.rows[0].credits });
     } catch (err) {
+      if (client) await client.query('ROLLBACK').catch(() => {});
       console.error('❌ DB update failed:', err);
       res.status(500).json({ error: 'DB update failed' });
+    } finally {
+      if (client) client.release();
     }
   } else {
     console.warn(`❌ Invalid signature for order ${razorpay_order_id}`);
@@ -590,8 +708,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 app.post('/evaluate-session', authenticateUser, sensitiveLimiter, async (req, res) => {
   const { originalText, recallText, mode } = req.body;
   const uid = req.user.id;
+  let reservationEstimate = 0;
 
   if (!originalText || !recallText) {
+
     return res.status(400).json({ error: 'Missing content for evaluation' });
   }
 
@@ -620,12 +740,14 @@ app.post('/evaluate-session', authenticateUser, sensitiveLimiter, async (req, re
     `;
 
   const fullInput = systemPromptTemplate;
-  // Reservation cost: Input tokens + heuristic for max output (e.g. 1500 chars ~ 375 tokens)
-  const reservationEstimate = calculateCost(fullInput, " ".repeat(1500)).totalCost;
-
+  console.log('--- FINAL GEMINI PROMPT ---');
+  console.log(fullInput);
+  console.log('---------------------------');
   let client;
   try {
+    // 0. Check User & Hard block if credits are 0
     client = await pool.connect();
+
     await client.query('BEGIN');
 
     // Row-level lock
@@ -636,6 +758,17 @@ app.post('/evaluate-session', authenticateUser, sensitiveLimiter, async (req, re
     }
 
     const currentCredits = parseFloat(userRes.rows[0].credits);
+    if (currentCredits <= 0) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'No credits remaining' });
+    }
+
+    // 1. Estimate Cost & Reserve Credits (Transaction 1)
+    const inputTokensEstimate = calculateTokens(fullInput);
+    // Assume 200 output tokens for every 1000 input tokens for credit check
+    const outputTokensAssumption = Math.ceil((inputTokensEstimate / 1000) * 200);
+    reservationEstimate = calculateCostFromTokens(inputTokensEstimate, outputTokensAssumption).totalCost;
+
     if (currentCredits < reservationEstimate) {
       await client.query('ROLLBACK');
       return res.status(403).json({ error: 'Insufficient credits', required: reservationEstimate.toFixed(2), have: currentCredits.toFixed(2) });
@@ -656,16 +789,19 @@ app.post('/evaluate-session', authenticateUser, sensitiveLimiter, async (req, re
     const result = await model.generateContent(fullInput);
     const response = await result.response;
     let text = response.text();
+    const usage = response.usageMetadata; // ACTUAL TOKENS FROM GEMINI
 
     // 3. Post-calculate & Adjust (Transaction 2)
-    const actualCostInfo = calculateCost(fullInput, text);
-    const costError = reservationEstimate - actualCostInfo.totalCost;
+    const actualCostInfo = calculateCostFromTokens(usage.promptTokenCount, usage.candidatesTokenCount);
+    // Floor the refund at 0. If Gemini returned massive output so actual > estimated, we just consume the full estimate, but don't charge extra.
+    const costError = Math.max(0, reservationEstimate - actualCostInfo.totalCost);
 
     client = await pool.connect();
     await client.query('BEGIN');
-    // Refund the difference (could be positive or negative, but costError is usually positive)
+    // Refund the difference 
     await client.query('UPDATE users SET credits = credits + $1 WHERE uid = $2', [costError, uid]);
     await client.query('COMMIT');
+
 
     // Return Evaluation
     text = text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -683,13 +819,16 @@ app.post('/evaluate-session', authenticateUser, sensitiveLimiter, async (req, re
     }
 
     // If it was already committed (reservation is independent), we must refund explicitly
-    try {
-      const refundClient = client || await pool.connect();
-      await refundClient.query('UPDATE users SET credits = credits + $1 WHERE uid = $2', [reservationEstimate, uid]);
-      if (!client) refundClient.release();
-    } catch (refErr) {
-      console.error('❌ Critical: Failed to refund credits after evaluation error!', refErr);
+    if (reservationEstimate > 0) {
+      try {
+        const refundClient = client || await pool.connect();
+        await refundClient.query('UPDATE users SET credits = credits + $1 WHERE uid = $2', [reservationEstimate, uid]);
+        if (!client) refundClient.release();
+      } catch (refErr) {
+        console.error('❌ Critical: Failed to refund credits after evaluation error!', refErr);
+      }
     }
+
 
     res.status(500).json({ error: 'Evaluation failed', details: err.message });
   } finally {

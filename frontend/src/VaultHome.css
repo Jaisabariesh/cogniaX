@@ -1,25 +1,19 @@
 :root {
-    --bg-dark: #0c0c0c;
-    --accent-blue: #a37bf4;
-    --accent-purple: #6e46bc;
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.05);
-    --text-primary: #f5f5f7;
-    --text-secondary: rgba(255, 255, 255, 0.5);
-    --vault-bg-gradient: radial-gradient(circle at top right, #1a1a1a, #0c0c0c);
-    --card-hover-bg: rgba(255, 255, 255, 0.06);
-    --create-card-bg: rgba(163, 123, 244, 0.02);
-    --create-card-hover: rgba(163, 123, 244, 0.04);
-    --input-bg: rgba(0, 0, 0, 0.2);
-    --input-text: #ffffff;
+    --bg-dark: #080808;
+    --bg-card: #1B1B1B;
+    --accent-blue: #4F8CFF;
+    --border-graphite: #252525;
+    --text-primary: #E8EAED;
+    --text-secondary: #8B95A7;
+    --text-tertiary: #5f6a7d;
+    --input-bg: #080808;
 }
-
 
 .vault-home-container {
     min-height: 100vh;
-    background: var(--vault-bg-gradient);
+    background: var(--bg-dark);
     color: var(--text-primary);
-    padding: 40px;
+    padding: 60px 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -27,24 +21,25 @@
 }
 
 .vault-home-header {
-    text-align: center;
-    margin-bottom: 60px;
+    text-align: left;
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 80px;
 }
 
 .vault-home-header h1 {
-    font-size: 3.5rem;
-    font-weight: 800;
-    margin-bottom: 10px;
-    background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -2px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #ffffff;
+    letter-spacing: -0.04em;
 }
 
 .vault-home-header p {
     color: var(--text-secondary);
-    font-size: 1.1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
 }
 
 .vault-grid-section {
@@ -54,92 +49,77 @@
 
 .vault-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px;
     width: 100%;
 }
 
 .vault-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-graphite);
+    border-radius: 4px;
+    padding: 32px;
     position: relative;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    overflow: hidden;
+    gap: 20px;
 }
 
 .vault-card:hover {
-    transform: translateY(-8px);
-    background: var(--card-hover-bg);
-    border-color: var(--accent-blue);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.vault-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.vault-card:hover::before {
-    opacity: 1;
+    border-color: var(--text-tertiary);
+    background: #161616;
 }
 
 .vault-icon {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+    color: var(--text-tertiary);
 }
 
 .vault-info h3 {
     margin: 0;
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     font-weight: 600;
+    color: #ffffff;
 }
 
 .vault-info p {
-    margin: 5px 0 0;
+    margin: 8px 0 0;
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .create-card {
-    background: var(--create-card-bg);
-    border: 2px dashed var(--glass-border);
-    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border-graphite);
+    border-style: dashed;
 }
 
 .create-card:hover {
     border-style: solid;
-    background: var(--create-card-hover);
+    border-color: var(--accent-blue);
 }
 
 .create-card form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
 .create-card input {
     background: var(--input-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    color: var(--input-text);
-    font-size: 1rem;
+    border: 1px solid var(--border-graphite);
+    border-radius: 2px;
+    padding: 12px 14px;
+    color: #ffffff;
+    font-size: 0.9rem;
     outline: none;
-    transition: border-color 0.3s ease;
+    font-family: inherit;
 }
 
 .create-card input:focus {
@@ -147,36 +127,39 @@
 }
 
 .create-card button {
-    background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+    background: #ffffff;
     border: none;
-    border-radius: 12px;
+    border-radius: 2px;
     padding: 12px;
-    color: white;
-    font-weight: 600;
+    color: #000000;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
 }
 
-.create-card button:active {
-    transform: scale(0.98);
+.create-card button:hover {
+    background: var(--accent-blue);
+    color: #ffffff;
 }
 
 .delete-vault-btn {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(255, 0, 0, 0.1);
+    top: 20px;
+    right: 20px;
+    background: transparent;
     border: none;
-    color: #ff4d4d;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    color: var(--text-dim);
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     opacity: 0;
-    transition: opacity 0.2s ease, background 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .vault-card:hover .delete-vault-btn {
@@ -184,27 +167,35 @@
 }
 
 .delete-vault-btn:hover {
-    background: rgba(255, 0, 0, 0.2);
+    color: #ff4d4d;
 }
 
 .vault-home-footer {
-    margin-top: auto;
+    margin-top: 100px;
     padding: 40px;
+    width: 100%;
+    max-width: 1200px;
+    border-top: 1px solid var(--border-graphite);
 }
 
 .vault-home-footer button {
     background: transparent;
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--border-graphite);
     color: var(--text-secondary);
-    padding: 8px 24px;
-    border-radius: 30px;
+    padding: 8px 16px;
+    border-radius: 2px;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .vault-home-footer button:hover {
-    border-color: white;
-    color: white;
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .vault-home-loading {
@@ -214,17 +205,18 @@
     align-items: center;
     justify-content: center;
     background: var(--bg-dark);
-    color: white;
-    gap: 20px;
+    color: var(--text-secondary);
+    gap: 24px;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--glass-border);
-    border-top: 3px solid #a37bf4;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-graphite);
+    border-top: 2px solid #ffffff;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -239,8 +231,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.85);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -248,18 +239,17 @@
 }
 
 .settings-modal {
-    background: var(--bg-dark);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-graphite);
+    border-radius: 4px;
     width: 90%;
-    max-width: 500px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
     overflow: hidden;
-    animation: modalFadeIn 0.3s ease;
+    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes modalFadeIn {
-    from { opacity: 0; transform: translateY(20px); }
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -267,181 +257,149 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 25px;
-    border-bottom: 1px solid var(--glass-border);
-    background: var(--glass-bg);
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border-graphite);
 }
 
 .settings-header h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.02em;
 }
 
 .close-btn {
     background: transparent;
     border: none;
-    color: var(--text-secondary);
-    font-size: 1.2rem;
+    color: var(--text-tertiary);
+    font-size: 1.25rem;
     cursor: pointer;
     transition: color 0.2s ease;
 }
 
 .close-btn:hover {
-    color: var(--text-primary);
+    color: #ffffff;
 }
 
 .settings-tabs {
     display: flex;
-    border-bottom: 1px solid var(--glass-border);
+    padding: 0 32px;
+    border-bottom: 1px solid var(--border-graphite);
 }
 
 .tab-btn {
-    flex: 1;
     background: transparent;
     border: none;
-    padding: 15px;
-    color: var(--text-secondary);
-    font-size: 1rem;
+    padding: 16px 0;
+    margin-right: 32px;
+    color: var(--text-tertiary);
+    font-size: 0.8rem;
     font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 .tab-btn:hover {
     color: var(--text-primary);
-    background: var(--glass-bg);
 }
 
 .tab-btn.active {
-    color: var(--accent-blue);
-    border-bottom: 2px solid var(--accent-blue);
-    background: rgba(163, 124, 244, 0.05);
+    color: #ffffff;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent-blue);
 }
 
 .settings-content {
-    padding: 25px;
-    min-height: 250px;
+    padding: 32px;
+    min-height: 300px;
 }
 
 .tab-pane h3 {
     margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.2rem;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .about-pane p {
     color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 10px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
 }
 
 .about-pane .copyright {
-    margin-top: 30px;
-    font-size: 0.85rem;
-    opacity: 0.6;
+    margin-top: 40px;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
 }
 
 .account-section {
-    margin-bottom: 25px;
-    padding-bottom: 25px;
-    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 40px;
 }
 
 .account-section:last-child {
     margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
 }
 
-.account-section form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.account-section input {
-    background: var(--input-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    color: var(--input-text);
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.3s ease;
-}
-
-.account-section input:focus {
-    border-color: var(--accent-blue);
-}
-
-.account-section button[type="submit"] {
-    background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
-    border: none;
-    border-radius: 12px;
-    padding: 12px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: filter 0.2s ease;
-}
-
-.account-section button[type="submit"]:hover {
-    filter: brightness(1.1);
-}
-
-.account-section button[type="submit"]:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.password-msg {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    color: var(--accent-blue);
-}
-
-.danger-zone h3 {
-    color: #ff4d4d;
-}
-
-.danger-zone p {
+.account-section p {
     color: var(--text-secondary);
-    margin-bottom: 15px;
-}
-
-.sign-out-btn {
-    background: rgba(255, 77, 77, 0.1);
-    border: 1px solid rgba(255, 77, 77, 0.3);
-    color: #ff4d4d;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.sign-out-btn:hover {
-    background: rgba(255, 77, 77, 0.2);
-    border-color: #ff4d4d;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
 }
 
 .secondary-btn {
     background: transparent;
-    border: 1px solid var(--accent-blue);
-    border-radius: 12px;
+    border: 1px solid var(--border-graphite);
+    border-radius: 2px;
     padding: 10px 16px;
-    color: var(--accent-blue);
+    color: #ffffff;
+    font-size: 0.8rem;
     font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .secondary-btn:hover {
-    background: rgba(163, 124, 244, 0.1);
+    border-color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.secondary-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.sign-out-btn {
+    background: transparent;
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 10px 16px;
+    border-radius: 2px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sign-out-btn:hover {
+    background: rgba(255, 77, 77, 0.1);
 }

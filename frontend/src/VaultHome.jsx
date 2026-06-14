@@ -48,6 +48,7 @@ const VaultHome = () => {
                 setResetMessage('Could not retrieve user email.');
             }
         } catch (error) {
+            console.error('Reset password error:', error);
             setResetMessage('An unexpected error occurred.');
         } finally {
             setResetLoading(false);
@@ -57,26 +58,28 @@ const VaultHome = () => {
     const fetchVaults = useCallback(async () => {
         try {
             const token = Cookies.get('sb-access-token');
-            const res = await axios.get(`http://localhost:3000/vaults/${uid}`, {
+            const res = await axios.get(`http://localhost:3000/vaults`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+
             setVaults(res.data);
         } catch (err) {
             console.error('Failed to fetch vaults:', err);
         } finally {
             setLoading(false);
         }
-    }, [uid]);
+    }, []); // uid removed as it's not used in fetchVaults
 
     const handleCreateVault = async (e) => {
         e.preventDefault();
         if (!newVaultName.trim()) return;
         try {
             const token = Cookies.get('sb-access-token');
-            const res = await axios.post(`http://localhost:3000/vaults/${uid}`, 
+            const res = await axios.post(`http://localhost:3000/vaults`, 
                 { name: newVaultName },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+
             setVaults([res.data, ...vaults]);
             setNewVaultName('');
         } catch (err) {
@@ -110,8 +113,14 @@ const VaultHome = () => {
     return (
         <div className="vault-home-container">
             <header className="vault-home-header">
-                <h1>COGNIA</h1>
-                <p>Select a vault to begin your intellectual journey</p>
+                <div className="brand-logo-container">
+                    <svg className="brand-logo-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M7 20L12 4L17 20" />
+                        <path d="M10 14H14" />
+                    </svg>
+                </div>
+                <h1>LUNA</h1>
+                <p>ACCESSING THE SCIENTIFIC KNOWLEDGE REPOSITORY</p>
             </header>
 
             <main className="vault-grid-section">
@@ -134,10 +143,10 @@ const VaultHome = () => {
                             className="vault-card"
                             onClick={() => navigate(`/${uid}/vault/${vault.id}`)}
                         >
-                            <div className="vault-icon">📁</div>
+                             <div className="vault-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 20L12 4L17 20"></path><path d="M10 14H14"></path></svg></div>
                             <div className="vault-info">
                                 <h3>{vault.name}</h3>
-                                <p>{new Date(vault.created).toLocaleDateString()}</p>
+                                <p>ENCRYPTED ARCHIVE • {new Date(vault.created).toLocaleDateString()}</p>
                             </div>
                             <button 
                                 className="delete-vault-btn"
@@ -150,8 +159,8 @@ const VaultHome = () => {
                 </div>
             </main>
 
-            <footer className="vault-home-footer">
-                <button onClick={() => setIsSettingsOpen(true)}>⚙️ Settings</button>
+             <footer className="vault-home-footer">
+                <button onClick={() => setIsSettingsOpen(true)}>SYSTEM_SETTINGS</button>
             </footer>
 
             {isSettingsOpen && (
@@ -178,10 +187,10 @@ const VaultHome = () => {
                         <div className="settings-content">
                             {activeTab === 'about' && (
                                 <div className="tab-pane about-pane">
-                                    <h3>COGNIA</h3>
-                                    <p>Version 1.0.0</p>
-                                    <p>Your intelligent and secure workspace for notes, tasks, and ideas.</p>
-                                    <p className="copyright">© 2026 COGNIA Inc.</p>
+                                    <h3>LUNA_VAULT</h3>
+                                    <p>CORE_ENGINE_V1.0.0</p>
+                                    <p>Secured research-grade workspace for classified intellectual synthesis.</p>
+                                    <p className="copyright">© 2026 LUNA_ARCHIVES</p>
                                 </div>
                             )}
                             {activeTab === 'account' && (

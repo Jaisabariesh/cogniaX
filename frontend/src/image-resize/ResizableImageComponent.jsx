@@ -6,9 +6,7 @@ const ResizableImageComponent = ({ node, updateAttributes, selected }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [initialWidth, setInitialWidth] = useState(0);
-  const [initialHeight, setInitialHeight] = useState(0);
   const [startX, setStartX] = useState(0);
-  const [startY, setStartY] = useState(0);
   const [aspectRatio, setAspectRatio] = useState(1);
   const [resizeDir, setResizeDir] = useState(''); // 'nw', 'ne', 'sw', 'se'
 
@@ -19,7 +17,6 @@ const ResizableImageComponent = ({ node, updateAttributes, selected }) => {
     e.stopPropagation();
     setIsResizing(true);
     setStartX(e.clientX);
-    setStartY(e.clientY);
     setResizeDir(dir);
 
     if (containerRef.current) {
@@ -27,7 +24,6 @@ const ResizableImageComponent = ({ node, updateAttributes, selected }) => {
       const w = rect.width;
       const h = rect.height;
       setInitialWidth(w);
-      setInitialHeight(h);
       if (h > 0) setAspectRatio(w / h);
     }
   };

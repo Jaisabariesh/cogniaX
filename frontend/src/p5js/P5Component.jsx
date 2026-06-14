@@ -7,6 +7,7 @@ const P5Component = ({ node, updateAttributes, deleteNode }) => {
   const p5InstanceRef = useRef(null);
   const [localCode, setLocalCode] = useState(code || `function setup() {\n  createCanvas(400, 400);\n}\n\nfunction draw() {\n  background(220);\n  ellipse(50, 50, 80, 80);\n}`);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('code');
 
   const [runId, setRunId] = useState(0);
 
@@ -72,7 +73,8 @@ const P5Component = ({ node, updateAttributes, deleteNode }) => {
         p5InstanceRef.current.remove();
       }
     };
-  }, [runId]); // Re-run whenever runId changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runId]); // Re-run whenever runId changes (initSketch depends on localCode which is captured at call time)
 
   const handleRun = () => {
     setError(null);
@@ -96,20 +98,34 @@ const P5Component = ({ node, updateAttributes, deleteNode }) => {
               🗑️
             </button>
           </div>
-          <button onClick={handleRun} className="run-btn">▶ Run / Update</button>
+          <div style={{ display: 'flex', background: '#111', borderRadius: '6px', padding: '3px' }}>
+            <button
+              onClick={() => setActiveTab('code')}
+              style={{ background: activeTab === 'code' ? '#444' : 'transparent', color: activeTab === 'code' ? '#fff' : '#888', border: 'none', borderRadius: '4px', padding: '4px 16px', fontSize: '12px', fontWeight: '500', cursor: 'pointer', transition: 'all 0.2s' }}
+            >
+              Code
+            </button>
+            <button
+              onClick={() => { handleRun(); setActiveTab('run'); }}
+              style={{ background: activeTab === 'run' ? '#2ecc71' : 'transparent', color: activeTab === 'run' ? '#fff' : '#888', border: 'none', borderRadius: '4px', padding: '4px 16px', fontSize: '12px', fontWeight: '500', cursor: 'pointer', transition: 'all 0.2s' }}
+            >
+              Run
+            </button>
+          </div>
         </div>
         
         <div className="p5-content">
           <textarea
             className="p5-textarea"
+            style={{ display: activeTab === 'code' ? 'block' : 'none' }}
             value={localCode}
             onChange={(e) => setLocalCode(e.target.value)}
             spellCheck="false"
           />
           
-          <div className="p5-preview">
+          <div className="p5-preview" style={{ display: activeTab === 'run' ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '200px', backgroundColor: '#000', padding: '20px' }}>
              <div ref={containerRef} className="p5-canvas-host"></div>
-             {error && <div className="p5-error">{error}</div>}
+             {error && <div className="p5-error" style={{ color: '#ff4444', marginTop: '10px', fontSize: '12px', fontFamily: 'monospace', textAlign: 'center' }}>{error}</div>}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Login.css';
 import { supabase } from './supabase';
 import Cookies from 'js-cookie';
@@ -135,6 +135,19 @@ const Login = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+
+    if (error) {
+      alert(`Google sign in error: ${error.message}`);
+    }
+  };
+
   return (
     <>
       <div className={`half-screen-rectangle ${isLogin ? '' : 'move-right'}`} />
@@ -142,12 +155,12 @@ const Login = () => {
       {isLogin ? (
         <div className="login">
           <button className="right" onClick={() => { setIsLogin(false); setIsForgotPassword(false); }}>
-            Not signed in yet?
+            REGISTER_NEW_ACCESS
           </button>
           
           {!isForgotPassword ? (
             <>
-              <h1 className="title">Hello Again!</h1>
+              <h1 className="title">IDENTIFY_USER</h1>
               <form onSubmit={handleLogin}>
                 <div className="placeholders">
                   <input
@@ -168,11 +181,20 @@ const Login = () => {
                   <br />
                 </div>
                 <button type="submit" className="signin-button">Sign In</button>
+                
+                <div className="divider">
+                  <span>OR</span>
+                </div>
+                <button type="button" className="google-button" onClick={handleGoogleSignIn}>
+                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="google-icon" />
+                  Continue with Google
+                </button>
+
                 <button 
                   type="button" 
                   className="forgot-password-link" 
                   onClick={() => setIsForgotPassword(true)}
-                  style={{ display: 'block', background: 'none', border: 'none', color: '#ff0080', cursor: 'pointer', marginTop: '15px', fontSize: '14px', width: '100%' }}
+                  style={{ display: 'block', background: 'none', border: 'none', color: '#007aff', cursor: 'pointer', marginTop: '15px', fontSize: '14px', width: '100%' }}
                 >
                   Forgot Password?
                 </button>
@@ -228,9 +250,9 @@ const Login = () => {
       ) : (
         <div className="signup visible">
           <button className="left" onClick={() => setIsLogin(true)}>
-            Already there?
+            EXISTING_ACCESS_KEY
           </button>
-          <h1 className="title-left">Getting started!</h1>
+          <h1 className="title-left">INITIALIZE_NEW_ACCESS</h1>
           <form onSubmit={handleSignup}>
             <div className="placeholders-left">
               <input
@@ -251,6 +273,13 @@ const Login = () => {
               <br />
             </div>
             <button type="submit" className="signup-button">Sign Up</button>
+            <div className="divider">
+              <span>OR</span>
+            </div>
+            <button type="button" className="google-button" onClick={handleGoogleSignIn}>
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="google-icon" />
+              Continue with Google
+            </button>
           </form>
         </div>
       )}

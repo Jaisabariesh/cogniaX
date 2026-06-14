@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
         setChecking(false);
         return;
       }
-      const { data, error } = await supabase.auth.getUser(token);
+      const { data } = await supabase.auth.getUser(token);
       if (data?.user) {
         setAuthenticated(true);
       }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { EditorContent, useEditor } from '@tiptap/react';
@@ -52,10 +52,9 @@ lowlight.register('html', html);
 
 
 const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMode, setActiveMode }) => {
-  const [isEditable, setIsEditable] = useState(true);
-  const [editorState, setEditorState] = useState('notEditing');
+  const [isEditable] = useState(true);
+  const [editorState, setEditorState] = useState('notEditing'); // eslint-disable-line no-unused-vars
   // const [activeMode, setActiveMode] = useState('none'); // Replaced by props
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [deleteMenu, setDeleteMenu] = useState(null); // { top, left, pos }
   const titleTextareaRef = useRef(null);
   const prevContentRef = useRef(null);
@@ -69,14 +68,14 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
   const selectedNoteRef = useRef(null);
   const requestIdRef = useRef(0);
 
-  useEffect(() => { 
+  useEffect(() => {
     if (selectedNote?.id !== selectedNoteRef.current?.id) {
       lastSavedJsonRef.current = selectedNote ? JSON.stringify(selectedNote.content) : null;
       lastSavedTitleRef.current = selectedNote?.title || null;
       requestIdRef.current++;
     }
-    selectedNoteRef.current = selectedNote; 
-  }, [selectedNote]);
+    selectedNoteRef.current = selectedNote;
+  }, [selectedNote, lastSavedTitleRef, lastSavedJsonRef]);
 
   useEffect(() => {
     if (titleTextareaRef.current) {
@@ -104,7 +103,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
       CodeBlockLowlight.configure({ lowlight }),
       ResizableImageExtension,
       HorizontalRule,
-      Dropcursor.configure({ color: '#a37bf4', width: 2 }),
+      Dropcursor.configure({ color: 'var(--accent)', width: 2 }),
       Gapcursor,
       Bold,
       Italic,
@@ -119,7 +118,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
       DesmosExtension,
       MathQuillExtension,
       GlobalDragHandle.configure({
-        dragHandleWidth: 20,
+        dragHandleWidth: 32,
         scrollTreshold: 100,
       }),
       Placeholder.configure({
@@ -146,7 +145,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
       CodeBlockLowlight.configure({ lowlight }),
       ResizableImageExtension,
       HorizontalRule,
-      Dropcursor.configure({ color: '#00d2ff', width: 2 }),
+      Dropcursor.configure({ color: 'var(--accent)', width: 2 }),
       Gapcursor,
       Bold,
       Italic,
@@ -161,7 +160,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
       DesmosExtension,
       MathQuillExtension,
       GlobalDragHandle.configure({
-        dragHandleWidth: 20,
+        dragHandleWidth: 32,
         scrollTreshold: 100,
       }),
       Placeholder.configure({
@@ -171,7 +170,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
     content: '',
   });
 
-  const handleAutoSave = async (contentJson, titleText, savedRequestId) => {
+  const handleAutoSave = useCallback(async (contentJson, titleText, savedRequestId) => {
     const note = selectedNoteRef.current;
     if (!note) return;
 
@@ -196,9 +195,10 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
         setEditorState('notEditing');
       }
     } catch (err) {
+      console.error('AutoSave failed:', err);
       if (savedRequestId === requestIdRef.current) setEditorState('error');
     }
-  };
+  }, [lastSavedTitleRef]);
 
   useEffect(() => {
     if (!editor || !selectedNoteContent) return;
@@ -220,16 +220,19 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
     }
   }, [activeMode, editor]);
 
+  const triggerSave = useCallback((jsonOverride, titleOverride) => {
+    if (!editor) return;
+    setEditorState('editing');
+    const newRequestId = ++requestIdRef.current;
+    const json = jsonOverride || editor.getJSON();
+    const title = titleOverride !== undefined ? titleOverride : (selectedNoteRef.current?.title || '');
+
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => handleAutoSave(json, title, newRequestId), 500);
+  }, [editor, handleAutoSave]);
+
   useEffect(() => {
     if (!editor) return;
-    const triggerSave = (jsonOverride) => {
-      setEditorState('editing');
-      const newRequestId = ++requestIdRef.current;
-      const json = jsonOverride || editor.getJSON();
-      const title = selectedNoteRef.current?.title || '';
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-      saveTimeoutRef.current = setTimeout(() => handleAutoSave(json, title, newRequestId), 500);
-    };
     const updateHandler = () => {
       const json = editor.getJSON();
       setEditorContentRef.current(json);
@@ -241,7 +244,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
       editor.off('update', updateHandler);
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
-  }, [editor]);
+  }, [editor, triggerSave]);
 
   useEffect(() => {
     if (activeMode !== 'none' && focusEditor) {
@@ -252,21 +255,31 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
 
   const handleEvaluate = async () => {
     if (!selectedNoteContent || !focusEditor) return;
+
     setIsEvaluating(true);
     setEvaluationResults(null);
     try {
       const llmSource = tiptapToLLM(selectedNoteContent);
       const llmRecall = tiptapToLLM(focusEditor.getJSON());
+
+      console.log('--- EVALUATION DATA SENT TO BACKEND ---');
+      console.log('Original Text (Source):', llmSource);
+      console.log('Recall Text (Student):', llmRecall);
+      console.log('Mode:', activeMode);
+      console.log('----------------------------------------');
+
       const token = Cookies.get('sb-access-token');
       const response = await axios.post('http://localhost:3000/evaluate-session', {
-        originalText: JSON.stringify(llmSource, null, 2),
-        recallText: JSON.stringify(llmRecall, null, 2),
+        originalText: llmSource,
+        recallText: llmRecall,
         mode: activeMode
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
       setEvaluationResults(response.data);
     } catch (err) {
+      console.error('Session evaluation failed:', err);
       setEvaluationResults({
         summary: "Evaluation failed. Please check your connection.",
         accuracy_score: 0,
@@ -318,14 +331,16 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
     setDeleteMenu(null);
   };
 
+  /* 
   const status = (() => {
-    switch(editorState) {
+    switch (editorState) {
       case 'editing': return { text: 'Editing...', class: 'status-editing' };
       case 'saving': return { text: 'Saving...', class: 'status-saving' };
       case 'error': return { text: 'Save Error!', class: 'status-error' };
       default: return { text: 'Saved', class: 'status-saved' };
     }
   })();
+  */
 
   if (!editor) return null;
 
@@ -338,7 +353,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
           onClick={handleDeleteAtPos}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
           </svg>
           Delete
         </button>
@@ -347,10 +362,15 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
         <>
           <div className="focus-overlay"></div>
           <div className="focus-banner">
-            <span>{activeMode === 'feynman' ? '🧠 Feynman Mode Active' : '🗣️ Blurt Mode Active'}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '20px', color: 'var(--accent)' }}>
+                {activeMode === 'feynman' ? 'psychology' : 'campaign'}
+              </span>
+              {activeMode === 'feynman' ? 'Feynman Mode Active' : 'Blurt Mode Active'}
+            </span>
             <div className="focus-banner-actions">
-              <button 
-                className={`evaluate-btn ${isEvaluating ? 'loading' : ''}`} 
+              <button
+                className={`evaluate-btn ${isEvaluating ? 'loading' : ''}`}
                 onClick={handleEvaluate}
                 disabled={isEvaluating}
               >
@@ -405,18 +425,20 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
       )}
       <div className={`editor-wrapper ${activeMode !== 'none' ? 'focus-active' : ''}`}>
         <div className="note-body-container">
-          <textarea 
+          <textarea
             ref={titleTextareaRef}
             className="static-note-title"
-            value={activeMode === 'none' ? (selectedNote?.title || '') : (activeMode === 'feynman' ? '🧠 Feynman Method' : '🗣️ Blurt Session')}
+            value={activeMode === 'none' ? (selectedNote?.title || '') : (activeMode === 'feynman' ? 'Feynman Method' : 'Blurt Session')}
             placeholder="Untitled"
             readOnly={activeMode !== 'none'}
             rows={1}
             onChange={(e) => {
               if (activeMode !== 'none') return;
+              const newTitle = e.target.value;
               e.target.style.height = 'auto';
               e.target.style.height = `${e.target.scrollHeight}px`;
-              setEditorContentRef.current(editor.getJSON(), e.target.value);
+              setEditorContentRef.current(editor.getJSON(), newTitle);
+              triggerSave(editor.getJSON(), newTitle);
             }}
           />
           <EditorContent editor={activeMode === 'none' ? editor : focusEditor} />

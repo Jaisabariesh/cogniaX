@@ -1,25 +1,20 @@
 window.global = window;
 import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import Login from './login.jsx'
-import ParentComponent from './COGNIA.jsx'
-import VaultHome from './VaultHome.jsx' // <- ✅ Import this
+import ParentComponent from './LUNA.jsx'
+import VaultHome from './VaultHome.jsx'
 import ChangePassword from './ChangePassword.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
-
-const RootRedirect = () => {
-  const location = useLocation();
-  return <Navigate to={{ pathname: '/login', search: location.search, hash: location.hash }} replace />;
-};
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<RootRedirect />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route
           path="/change-password"

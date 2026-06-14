@@ -15,28 +15,29 @@ const ResizableImage = ({ node, updateAttributes, selected }) => {
     event.preventDefault();
   };
 
-  const handleMouseMove = (event) => {
-    if (!isResizing) return;
-    const deltaX = event.clientX - startX;
-    const newWidth = Math.max(50, startWidth + deltaX);
-    updateAttributes({ width: newWidth });
-  };
-
-  const handleMouseUp = () => setIsResizing(false);
 
   useEffect(() => {
+    const onMouseMove = (event) => {
+      if (!isResizing) return;
+      const deltaX = event.clientX - startX;
+      const newWidth = Math.max(50, startWidth + deltaX);
+      updateAttributes({ width: newWidth });
+    };
+
+    const onMouseUp = () => setIsResizing(false);
+
     if (isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
     } else {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
     }
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
     };
-  }, [isResizing]);
+  }, [isResizing, startX, startWidth, updateAttributes]);
 
   return (
     <NodeViewWrapper

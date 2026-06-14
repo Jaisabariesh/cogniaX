@@ -131,7 +131,7 @@ export const SlashCommand = Extension.create({
                 opacity: '0',
                 transform: 'translateY(10px)',
                 transition: 'opacity 0.2s, transform 0.2s',
-                fontFamily: "'Outfit', sans-serif"
+                fontFamily: "'Inter', sans-serif"
               })
 
               popup = document.body.appendChild(component)
@@ -183,7 +183,7 @@ export const SlashCommand = Extension.create({
   },
 })
 
-function renderItems({ items, command, editor }, container) {
+function renderItems({ items, command }, container) {
   container.innerHTML = ''
   if (items.length === 0) {
     container.innerHTML = '<div style="padding: 12px; color: #888; font-size: 0.9rem;">No results found...</div>'
@@ -223,7 +223,7 @@ function renderItems({ items, command, editor }, container) {
   })
 }
 
-function positionMenu({ editor }, element) {
+function positionMenu(_props, element) {
   const selection = window.getSelection()
   if (!selection.rangeCount) return
   

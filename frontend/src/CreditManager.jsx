@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { API_URL, RAZORPAY_KEY_ID } from './config';
+
 
 const CreditManager = ({ uid, refreshKey }) => {
   const [credits, setCredits] = useState(0);
@@ -11,12 +13,16 @@ const CreditManager = ({ uid, refreshKey }) => {
 
   const fetchCredits = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL}/credits/${uid}`);
+      const token = Cookies.get('sb-access-token');
+      const res = await axios.get(`${API_URL}/credits`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setCredits(res.data.credits);
     } catch (err) {
       console.error('Failed to fetch credits:', err);
     }
-  }, [uid]);
+  }, []);
+
 
   useEffect(() => {
     if (uid) fetchCredits();
@@ -44,10 +50,13 @@ const CreditManager = ({ uid, refreshKey }) => {
       }
 
       // 2. CREATE ORDER (Backend)
-      const orderRes = await axios.post(`${API_URL}/create-razorpay-order`, {
-        amount: topupAmount,
-        uid: uid
-      });
+      const token = Cookies.get('sb-access-token');
+      const orderRes = await axios.post(`${API_URL}/create-razorpay-order`, 
+        { amount: topupAmount },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+
 
       if (!orderRes.data?.id) {
         throw new Error(orderRes.data?.detail || 'Order creation failed');
@@ -61,18 +70,22 @@ const CreditManager = ({ uid, refreshKey }) => {
         key: key_id || RAZORPAY_KEY_ID, // Use backend key if available, fallback to config
         amount: amount,
         currency: currency,
-        name: 'COGNIA',
+        name: 'LUNA',
         description: `Top up Credits`,
         order_id: order_id, 
         handler: async (response) => {
           try {
+            const token = Cookies.get('sb-access-token');
             const verifyRes = await axios.post(`${API_URL}/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              uid,
               creditsToAdd: topupAmount, 
+            }, {
+
+              headers: { Authorization: `Bearer ${token}` }
             });
+
 
             if (verifyRes.data.success) {
               fetchCredits();
@@ -87,7 +100,7 @@ const CreditManager = ({ uid, refreshKey }) => {
             setLoading(false);
           }
         },
-        theme: { color: '#3478f6' },
+        theme: { color: '#007aff' },
         modal: {
           ondismiss: () => {
             setLoading(false);
@@ -111,30 +124,40 @@ const CreditManager = ({ uid, refreshKey }) => {
       display: 'flex',
       alignItems: 'center',
     },
-    row: {
+    pill: {
       display: 'flex',
       alignItems: 'center',
       gap: '8px',
+      background: '#1e1e20',
+      border: '1px solid #333',
+      padding: '4px 12px',
+      borderRadius: '99px',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      userSelect: 'none',
     },
-    label: {
-      color: '#a1a1aa',
-      fontSize: '11px',
-      fontWeight: '700',
-      letterSpacing: '0.05em',
-      textTransform: 'uppercase',
+    icon: {
+      color: '#22c55e',
+      fontSize: '16px',
+      display: 'flex',
+      alignItems: 'center',
     },
     creditCount: {
-      color: '#e4e4e7',
-      fontSize: '12px',
+      color: '#ffffff',
+      fontSize: '13px',
       fontWeight: '700',
-      letterSpacing: '0.5px',
-      whiteSpace: 'nowrap',
+      letterSpacing: '0.2px',
+    },
+    label: {
+      color: '#71717a',
+      fontSize: '13px',
+      fontWeight: '500',
     },
     addBtn: {
       width: '28px',
       height: '28px',
       borderRadius: '50%',
-      background: '#8b5cf6',
+      background: 'var(--accent)',
       color: '#fff',
       border: 'none',
       fontSize: '16px',
@@ -146,14 +169,14 @@ const CreditManager = ({ uid, refreshKey }) => {
       transition: 'all 0.15s',
       lineHeight: '1',
       flexShrink: 0,
-      boxShadow: '0 0 12px rgba(139, 92, 246, 0.4)',
+      boxShadow: 'none',
       userSelect: 'none',
     },
     overlay: {
       position: 'fixed',
       inset: 0,
       background: 'rgba(0,0,0,0.85)',
-      backdropFilter: 'blur(8px)',
+      backdropFilter: 'none',
       zIndex: 2000,
       display: 'flex',
       alignItems: 'center',
@@ -163,10 +186,10 @@ const CreditManager = ({ uid, refreshKey }) => {
     modal: {
       width: '100%',
       maxWidth: '400px',
-      background: '#111',
-      border: '1px solid rgba(255,255,255,0.10)',
-      borderRadius: '24px',
-      boxShadow: '0 40px 100px rgba(0,0,0,0.8)',
+      background: '#121212',
+      border: '1px solid #2a2a2a',
+      borderRadius: '4px',
+      boxShadow: 'var(--shadow-lg)',
       overflow: 'hidden',
     },
     modalHeader: {
@@ -220,8 +243,8 @@ const CreditManager = ({ uid, refreshKey }) => {
     },
     amtBtn: (selected) => ({
       padding: '16px',
-      borderRadius: '12px',
-      fontSize: '15px',
+      borderRadius: '4px',
+      fontSize: '14px',
       fontWeight: '600',
       cursor: 'pointer',
       transition: 'all 0.15s',
@@ -234,7 +257,7 @@ const CreditManager = ({ uid, refreshKey }) => {
       padding: '14px',
       background: '#1a1a1a',
       border: '1px solid #2a2a2a',
-      borderRadius: '12px',
+      borderRadius: '4px',
       color: '#fff',
       fontSize: '15px',
       fontWeight: '500',
@@ -251,8 +274,8 @@ const CreditManager = ({ uid, refreshKey }) => {
       background: disabled ? '#333' : '#fff',
       color: disabled ? '#666' : '#000',
       border: 'none',
-      borderRadius: '14px',
-      fontSize: '16px',
+      borderRadius: '4px',
+      fontSize: '14px',
       fontWeight: '700',
       cursor: disabled ? 'not-allowed' : 'pointer',
       transition: 'all 0.15s',
@@ -261,19 +284,16 @@ const CreditManager = ({ uid, refreshKey }) => {
 
   return (
     <div style={styles.wrapper}>
-      <div style={styles.row}>
-        <span style={{ color: '#71717a', fontSize: '10px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>CR</span>
+      <div 
+        style={styles.pill} 
+        onClick={() => setIsModalOpen(true)}
+        title="Top up credits"
+      >
+        <span className="material-symbols-outlined" style={styles.icon}>bolt</span>
         <span style={styles.creditCount}>
-          {typeof credits === 'number' ? (Math.round(credits * 100) / 100) : credits}
+          {typeof credits === 'number' ? Math.ceil(credits) : credits}
         </span>
-        <button
-          style={styles.addBtn}
-          onClick={() => setIsModalOpen(true)}
-          title="Top up credits"
-          type="button"
-        >
-          +
-        </button>
+        <span style={styles.label}>credits</span>
       </div>
 
       {isModalOpen && createPortal(

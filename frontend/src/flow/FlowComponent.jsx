@@ -25,7 +25,32 @@ const CustomNode = ({ data, id, selected }) => {
         lineStyle={{ border: '2px solid #4f46e5' }}
         handleStyle={{ width: 8, height: 8, background: '#4f46e5', border: '1px solid white' }}
       />
-      <div className="flow-card-node" style={{ width: '100%', height: '100%', margin: 0 }}>
+      <div className="flow-card-node" style={{ width: '100%', height: '100%', margin: 0, position: 'relative' }}>
+        {selected && (
+            <button 
+                onClick={(e) => { e.stopPropagation(); data.onDelete(id); }}
+                style={{ 
+                    position: 'absolute', 
+                    top: '-15px', 
+                    right: '-15px', 
+                    background: '#ef4444', 
+                    color: 'white', 
+                    border: '2px solid white', 
+                    borderRadius: '50%', 
+                    width: '24px', 
+                    height: '24px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 1000,
+                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                }}
+                title="Delete Card"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        )}
         <Handle type="target" position={Position.Top} />
         <div className="flow-card-content" style={{ height: '100%', display: 'flex' }}>
           <textarea 
@@ -45,12 +70,24 @@ const nodeTypes = {
   card: CustomNode,
 };
 
-const FlowComponent = ({ node, updateAttributes, deleteNode }) => {
+const FlowComponent = ({ node, updateAttributes }) => {
   const { nodes: initialNodes, edges: initialEdges, height: initialHeight } = node.attrs;
   
   const [nodes, setNodes] = useState(JSON.parse(initialNodes || '[]'));
   const [edges, setEdges] = useState(JSON.parse(initialEdges || '[]'));
-  const [height, setHeight] = useState(initialHeight || 400);
+  const [height] = useState(initialHeight || 400);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  // Esc key listener to exit full screen
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isFullScreen) {
+        setIsFullScreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullScreen]);
 
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -76,12 +113,17 @@ const FlowComponent = ({ node, updateAttributes, deleteNode }) => {
     );
   }, []);
 
+  const handleNodeDelete = useCallback((id) => {
+    setNodes((nds) => nds.filter((node) => node.id !== id));
+    setEdges((eds) => eds.filter((edge) => edge.source !== id && edge.target !== id));
+  }, []);
+
   const addNode = () => {
     const id = `node-${Date.now()}`;
     const newNode = {
       id,
       type: 'card',
-      data: { label: '', onChange: handleNodeTextChange },
+      data: { label: '', onChange: handleNodeTextChange, onDelete: handleNodeDelete },
       position: { x: Math.random() * 400, y: Math.random() * 200 },
     };
     setNodes((nds) => nds.concat(newNode));
@@ -94,52 +136,43 @@ const FlowComponent = ({ node, updateAttributes, deleteNode }) => {
       edges: JSON.stringify(edges),
       height: height
     });
-  }, [nodes, edges, height]);
+  }, [nodes, edges, height, updateAttributes]);
 
   // Inject the onChange handler into nodes after hydration
   useEffect(() => {
     setNodes(nds => nds.map(n => ({
       ...n,
-      data: { ...n.data, onChange: handleNodeTextChange }
+      data: { ...n.data, onChange: handleNodeTextChange, onDelete: handleNodeDelete }
     })));
-  }, [handleNodeTextChange]);
+  }, [handleNodeTextChange, handleNodeDelete]);
 
   return (
-    <NodeViewWrapper className="flow-block">
-      <div className="flow-container" style={{ background: '#f0f2f5', border: '1px solid #d1d5db', borderRadius: '12px', overflow: 'hidden' }}>
-        <div className="flow-toolbar" style={{ padding: '10px', background: 'white', borderBottom: '1px solid #e5e7eb', display: 'flex', gap: '10px', alignItems: 'center' }}>
+    <NodeViewWrapper className={`flow-block ${isFullScreen ? 'full-screen' : ''}`}>
+      <div className={`flow-container ${isFullScreen ? 'is-expanded' : ''}`}>
+        <div className="flow-toolbar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button onClick={addNode} className="flow-add-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               Add Card
             </button>
-            <button 
-              onClick={() => window.confirm("Delete mindmap block?") && deleteNode()}
-              title="Delete Entire Block"
-              style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px', fontSize: '14px' }}
-            >
-              🗑️
-            </button>
           </div>
           
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button 
-              onClick={() => window.confirm("Delete mindmap block?") && deleteNode()}
-              title="Delete Entire Block"
-              style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px', fontSize: '14px', marginRight: '10px' }}
+                onClick={() => setIsFullScreen(!isFullScreen)}
+                title={isFullScreen ? "Exit Full Screen" : "Full Screen Mode"}
+                style={{ background: 'transparent', border: 'none', color: '#4f46e5', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}
             >
-              🗑️
+                {isFullScreen ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>
+                ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                )}
             </button>
-            <span style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280' }}>Extend:</span>
-            <input 
-              type="range" min="300" max="1500" value={height} 
-              onChange={(e) => setHeight(parseInt(e.target.value))} 
-              style={{ accentColor: '#4f46e5' }}
-            />
           </div>
         </div>
 
-        <div style={{ height: `${height}px`, width: '100%', background: 'white' }}>
+        <div style={{ height: isFullScreen ? 'calc(100vh - 60px)' : `${height}px`, width: '100%' }}>
           <ReactFlowProvider>
             <ReactFlow
               nodes={nodes}

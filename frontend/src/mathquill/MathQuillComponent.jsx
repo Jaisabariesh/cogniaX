@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import { addStyles, EditableMathField } from 'react-mathquill';
 
@@ -23,12 +23,7 @@ const MathQuillComponent = ({ node, updateAttributes, deleteNode }) => {
     }
   };
 
-  const insertLatex = (data) => {
-    if (mathField) {
-      mathField.write(data);
-      mathField.focus();
-    }
-  };
+
 
   const symbols = [
     { label: 'x²', cmd: '^2' },
