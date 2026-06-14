@@ -1146,7 +1146,10 @@ html, body {
 }
 
 .konva-host {
-  background: #ffffff; /* Contrast for the drawing area */
+  background: #121214; 
+  background-image: 
+    radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
   position: relative;
 }
 
@@ -1165,7 +1168,7 @@ html, body {
 .konva-host {
   min-height: 200px;
   width: 100%;
-  background-color: #fff;
+  background-color: #121214;
   cursor: crosshair;
 }
 

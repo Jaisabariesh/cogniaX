@@ -51,7 +51,7 @@ lowlight.register('html', html);
 
 
 
-const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMode, setActiveMode }) => {
+const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMode, setActiveMode, saveNowRef }) => {
   const [isEditable] = useState(true);
   const [editorState, setEditorState] = useState('notEditing'); // eslint-disable-line no-unused-vars
   // const [activeMode, setActiveMode] = useState('none'); // Replaced by props
@@ -69,9 +69,17 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
   const requestIdRef = useRef(0);
 
   useEffect(() => {
+    // IMPORTANT: Only reset the "last saved" baseline when the NOTE ID changes
+    // (i.e., user switched to a different note). Do NOT reset it on every prop
+    // update caused by typing — handleEditorChange updates selectedNote.content
+    // on every keystroke, which would trick the skip-check into thinking the
+    // current content was already saved.
     if (selectedNote?.id !== selectedNoteRef.current?.id) {
-      lastSavedJsonRef.current = selectedNote ? JSON.stringify(selectedNote.content) : null;
-      lastSavedTitleRef.current = selectedNote?.title || null;
+      // Use the freshly fetched content (selectedNoteContent) as the baseline,
+      // not selectedNote.content which may already be stale from prior edits.
+      // We reset to null so the very first save always goes through.
+      lastSavedJsonRef.current = null;
+      lastSavedTitleRef.current = null;
       requestIdRef.current++;
     }
     selectedNoteRef.current = selectedNote;
@@ -170,7 +178,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
     content: '',
   });
 
-  const handleAutoSave = useCallback(async (contentJson, titleText, savedRequestId) => {
+  const handleAutoSave = useCallback(async (contentJson, titleText, savedRequestId, force = false) => {
     const note = selectedNoteRef.current;
     if (!note) return;
 
@@ -189,10 +197,12 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (savedRequestId === requestIdRef.current) {
+      // For a forced save (note-switch flush), always record what we saved.
+      // For debounced saves, only update if we're still on the same "request epoch."
+      if (force || savedRequestId === requestIdRef.current) {
         lastSavedJsonRef.current = currentJsonStr;
         lastSavedTitleRef.current = titleText;
-        setEditorState('notEditing');
+        if (savedRequestId === requestIdRef.current) setEditorState('notEditing');
       }
     } catch (err) {
       console.error('AutoSave failed:', err);
@@ -200,8 +210,29 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
     }
   }, [lastSavedTitleRef]);
 
+  // Register an imperative saveNow function into the parent ref
+  // so the sidebar can flush any pending save before switching notes.
   useEffect(() => {
-    if (!editor || !selectedNoteContent) return;
+    if (!saveNowRef) return;
+    saveNowRef.current = async () => {
+      if (!editor) return;
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+      const json = editor.getJSON();
+      const title = selectedNoteRef.current?.title || '';
+      // Pass force=true so lastSavedJsonRef is always updated after a successful
+      // flush, even if requestIdRef changed due to concurrent typing activity.
+      await handleAutoSave(json, title, requestIdRef.current, true);
+    };
+    return () => {
+      if (saveNowRef) saveNowRef.current = null;
+    };
+  }, [editor, handleAutoSave, saveNowRef]);
+
+  useEffect(() => {
+    if (!editor || !selectedNoteContent || editor.isFocused) return;
     const currentContent = JSON.stringify(editor.getJSON());
     const incomingContent = JSON.stringify(selectedNoteContent);
     if (incomingContent !== currentContent && incomingContent !== prevContentRef.current) {
@@ -242,7 +273,17 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
     editor.on('focus', () => setEditorState('editing'));
     return () => {
       editor.off('update', updateHandler);
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      // On unmount (note switch), immediately flush any pending debounced save.
+      // We cancel the debounce timer and fire the save synchronously so content
+      // is persisted before the new note loads.
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+        const json = editor.getJSON();
+        const title = selectedNoteRef.current?.title || '';
+        // Fire-and-forget; the request is already in-flight at this point
+        handleAutoSave(json, title, requestIdRef.current);
+      }
     };
   }, [editor, triggerSave]);
 

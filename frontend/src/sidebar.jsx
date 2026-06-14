@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import FolderTree from './FolderTree';
 
 import './sidebar.css';
 
-const Sidebar = ({ uid, selectedVaultId, vaultName, setSelectedNoteContent, setSelectedNote, selectedNote, isOpen, onToggle, activeMode }) => {
+const Sidebar = ({ uid, selectedVaultId, vaultName, setSelectedNoteContent, setSelectedNote, selectedNote, isOpen, onToggle, activeMode, saveNowRef }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [focusWarning, setFocusWarning] = useState(false);
@@ -24,13 +25,29 @@ const Sidebar = ({ uid, selectedVaultId, vaultName, setSelectedNoteContent, setS
       showFocusWarning();
       return;
     }
-    setSelectedNote(note);
+    // Don't re-fetch if the same note is already selected
+    if (note.id === selectedNote?.id) return;
+
+    // Flush any pending autosave for the current note BEFORE switching.
+    // This guarantees the old note's latest content is persisted in the DB
+    // so the fresh fetch for the new note reflects the correct state.
+    if (saveNowRef?.current) {
+      try { await saveNowRef.current(); } catch (_) { /* best-effort */ }
+    }
+
     try {
-      const res = await axios.get(`http://localhost:3000/notes/${note.id}`);
+      // Fetch fresh content from DB with auth — the cache-bust ?t= param prevents
+      // browser caching, and the Authorization header satisfies the backend middleware.
+      const token = Cookies.get('sb-access-token');
+      const res = await axios.get(`http://localhost:3000/notes/${note.id}?t=${Date.now()}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setSelectedNoteContent(res.data.content);
+      setSelectedNote(res.data); // use server data so title/content are always in sync
     } catch (err) {
       console.error('Failed to fetch latest content, using cached version:', err);
       setSelectedNoteContent(note.content);
+      setSelectedNote(note);
     }
   };
 

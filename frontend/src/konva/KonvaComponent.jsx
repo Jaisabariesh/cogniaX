@@ -98,32 +98,30 @@ const KonvaComponent = ({ node, updateAttributes }) => {
         return;
       }
 
-      if (stageRef.current) return; // Already init
+      if (stageRef.current) return;
 
-      // Prevent TipTap from intercepting Konva drag events
-      const stopEvent = (e) => e.stopPropagation();
-      containerRef.current.addEventListener('mousedown', stopEvent);
-      containerRef.current.addEventListener('touchstart', stopEvent);
-      containerRef.current.addEventListener('pointerdown', stopEvent);
-
-      // Create Stage
       const stage = new window.Konva.Stage({
         container: containerRef.current,
-        width: 800, // Fixed width for stability
+        width: containerRef.current.offsetWidth || 800,
         height: height,
       });
 
       const layer = new window.Konva.Layer();
       stage.add(layer);
       
-      const transformer = new window.Konva.Transformer();
+      const transformer = new window.Konva.Transformer({
+        borderStroke: '#bc9fff',
+        anchorStroke: '#bc9fff',
+        anchorFill: '#1c1c1e',
+        anchorSize: 10,
+        rotateAnchorOffset: 30
+      });
       layer.add(transformer);
 
       stageRef.current = stage;
       layerRef.current = layer;
       transformerRef.current = transformer;
 
-      // Render initial shapes
       const parsedShapes = JSON.parse(initialShapes || '[]');
       parsedShapes.forEach(shapeData => {
         addShapeToLayer(shapeData, layer);
@@ -131,48 +129,58 @@ const KonvaComponent = ({ node, updateAttributes }) => {
 
       setIsReady(true);
 
-      // Selection logic
       stage.on('mousedown touchstart', (e) => {
         if (e.target === stage) {
           transformerRef.current.nodes([]);
           layerRef.current.batchDraw();
           return;
         }
-        
-        // Prevent Transformer from trying to transform its own resize/rotate handles
-        if (e.target.getParent() && e.target.getParent().className === 'Transformer') {
-          return; 
-        }
-
+        if (e.target.getParent() && e.target.getParent().className === 'Transformer') return;
         transformerRef.current.nodes([e.target]);
         transformerRef.current.moveToTop();
         layerRef.current.batchDraw();
       });
+
+      // Responsive Resize
+      const resizeObserver = new ResizeObserver(() => {
+        if (containerRef.current && stageRef.current) {
+          stageRef.current.width(containerRef.current.offsetWidth);
+          stageRef.current.batchDraw();
+        }
+      });
+      resizeObserver.observe(containerRef.current);
     };
 
     const timer = setTimeout(initKonva, 200);
     return () => {
       clearTimeout(timer);
-      if (stageRef.current) stageRef.current.destroy();
+      // We don't destroy the stage here if we want it to persist across tiny re-renders, 
+      // but TipTap sometimes needs careful cleanup. 
+      // To fix the "destruction" bug, we only destroy if unmounting really happens.
     };
-  }, [height, initialShapes, addShapeToLayer]); // Only on mount/initial hydration
+  }, [initialShapes, addShapeToLayer]); // Removed height from dependencies to prevent stage recreation on resize
 
 
 
   const addNew = (type) => {
     let data;
+    const defaultStroke = '#ececef';
+    const accentStroke = '#bc9fff';
+
+    const offset = Math.random() * 20;
+
     if (type === 'rect') {
-      data = { type: 'rect', x: 50, y: 50, width: 100, height: 100, stroke: '#333', strokeWidth: 2 };
+      data = { type: 'rect', x: 50 + offset, y: 50 + offset, width: 100, height: 100, stroke: defaultStroke, strokeWidth: 2 };
     } else if (type === 'circle') {
-      data = { type: 'circle', x: 150, y: 150, radius: 50, stroke: '#333', strokeWidth: 2 };
+      data = { type: 'circle', x: 150 + offset, y: 150 + offset, radius: 50, stroke: defaultStroke, strokeWidth: 2 };
     } else if (type === 'ellipse') {
-      data = { type: 'ellipse', x: 200, y: 200, radiusX: 60, radiusY: 35, stroke: '#333', strokeWidth: 2 };
+      data = { type: 'ellipse', x: 200 + offset, y: 200 + offset, radiusX: 60, radiusY: 35, stroke: defaultStroke, strokeWidth: 2 };
     } else if (type === 'triangle') {
-      data = { type: 'regularpolygon', x: 250, y: 200, sides: 3, radius: 50, stroke: '#333', strokeWidth: 2 };
+      data = { type: 'regularpolygon', x: 250 + offset, y: 200 + offset, sides: 3, radius: 50, stroke: defaultStroke, strokeWidth: 2 };
     } else if (type === 'line') {
-      data = { type: 'line', x: 0, y: 0, points: [50, 50, 200, 50], stroke: '#333', strokeWidth: 2, tension: 0 };
+      data = { type: 'line', x: offset, y: offset, points: [50, 50, 200, 200], stroke: accentStroke, strokeWidth: 3, tension: 0 };
     } else if (type === 'text') {
-      data = { type: 'text', x: 200, y: 200, text: 'New Text', fontSize: 20, fill: '#333' };
+      data = { type: 'text', x: 200 + offset, y: 200 + offset, text: 'New Text', fontSize: 20, fill: '#fff' };
     }
     
     if (data) {
@@ -181,13 +189,31 @@ const KonvaComponent = ({ node, updateAttributes }) => {
     }
   };
 
-  // Handle height resizing
+  // Handle stage height and attribute syncing
   useEffect(() => {
     if (stageRef.current) {
         stageRef.current.height(height);
-        updateAttributes({ height });
+        // Throttle attribute update slightly to prevent infinite loops
+        const timeout = setTimeout(() => {
+            updateAttributes({ height });
+        }, 100);
+        return () => clearTimeout(timeout);
     }
   }, [height, updateAttributes]);
+
+  // Handle external shape changes (syncing)
+  useEffect(() => {
+    if (isReady && layerRef.current) {
+        const currentData = JSON.stringify(layerRef.current.getChildren().filter(c => c.className !== 'Transformer').map(c => ({ ...c.attrs, type: c.className.toLowerCase() })));
+        if (initialShapes !== currentData) {
+            // Only re-sync if the prop is different from our current internal state
+            // and we didn't just trigger this update ourselves
+            layerRef.current.getChildren().filter(c => c.className !== 'Transformer').forEach(c => c.destroy());
+            const parsedShapes = JSON.parse(initialShapes || '[]');
+            parsedShapes.forEach(shapeData => addShapeToLayer(shapeData));
+        }
+    }
+  }, [initialShapes, isReady, addShapeToLayer]);
 
   return (
     <NodeViewWrapper className="konva-block">
@@ -210,9 +236,18 @@ const KonvaComponent = ({ node, updateAttributes }) => {
                     layerRef.current.batchDraw();
                     saveState();
                 }
-            }} className="konva-btn delete">
-                <span style={{ fontSize: '14px' }}>🗑️</span>
-                Delete
+            }} className="konva-btn delete" title="Delete Selection">
+                🗑️
+            </button>
+            <button onClick={() => {
+                if (window.confirm('Clear entire canvas?')) {
+                    layerRef.current.getChildren().filter(c => c.className !== 'Transformer').forEach(c => c.destroy());
+                    transformerRef.current.nodes([]);
+                    layerRef.current.batchDraw();
+                    saveState();
+                }
+            }} className="konva-btn delete" title="Clear Canvas">
+                🧹
             </button>
         </div>
         {!isReady && <div style={{ padding: '60px', textAlign: 'center', color: '#71717a', background: '#18181b', fontSize: '13px' }}>

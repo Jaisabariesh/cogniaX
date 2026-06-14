@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -20,6 +20,10 @@ const ParentComponent = () => {
     content: [{ type: 'paragraph' }],
   });
 
+  // TipTap registers an imperative save function here so we can flush
+  // any pending autosave before switching notes.
+  const saveNowRef = useRef(null);
+
   useEffect(() => {
     const fetchVaultInfo = async () => {
       try {
@@ -39,7 +43,11 @@ const ParentComponent = () => {
     if (uid && vaultId) fetchVaultInfo();
   }, [uid, vaultId]);
 
-  // Called whenever TipTap editor changes content
+  // Called whenever TipTap editor changes content.
+  // NOTE: We intentionally do NOT call setSelectedNoteContent here.
+  // selectedNoteContent is only used to initialize the editor when a note
+  // is first selected. Feeding it back on every keystroke creates a
+  // feedback loop that resets the editor mid-typing.
   const handleEditorChange = (newContent, newTitle) => {
     setSelectedNote((prev) => {
       if (!prev) return prev;
@@ -49,7 +57,6 @@ const ParentComponent = () => {
         title: newTitle !== undefined ? newTitle : prev.title 
       };
     });
-    setSelectedNoteContent(newContent);
   };
 
   return (
@@ -64,6 +71,7 @@ const ParentComponent = () => {
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         activeMode={activeMode}
+        saveNowRef={saveNowRef}
       />
       <div className="editor-container">
         <TopBar 
@@ -78,11 +86,13 @@ const ParentComponent = () => {
         <div className="editor-content-area workspace-grid">
           {selectedNote ? (
             <TipTap
+              key={selectedNote.id}
               selectedNote={selectedNote}
               selectedNoteContent={selectedNoteContent}
               setEditorContent={handleEditorChange}
               activeMode={activeMode}
               setActiveMode={setActiveMode}
+              saveNowRef={saveNowRef}
             />
           ) : (
             <div className="empty-state-section">
