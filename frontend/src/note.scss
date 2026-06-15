@@ -104,16 +104,15 @@ html, body {
 }
 
 .evaluation-results-panel {
-  position: fixed;
-  top: 96px;
-  right: 40px;
-  width: 380px;
+  position: relative;
+  width: 720px;
+  margin: 40px auto 0 auto;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 4px;
-  z-index: 2000;
+  z-index: 10;
   box-shadow: var(--shadow-lg);
-  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 
   .results-header {
@@ -157,8 +156,6 @@ html, body {
 
   .results-body {
     padding: 20px;
-    max-height: 500px;
-    overflow-y: auto;
 
     h4 {
        font-size: 0.85rem;
@@ -198,9 +195,9 @@ html, body {
   }
 }
 
-@keyframes slideInRight {
-  from { transform: translateX(30px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .note-body-container {

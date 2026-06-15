@@ -420,6 +420,27 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
               <button className="exit-btn" onClick={() => setActiveMode('none')}>Exit</button>
             </div>
           </div>
+        </>
+      )}
+      <div className={`editor-wrapper ${activeMode !== 'none' ? 'focus-active' : ''}`}>
+        <div className="note-body-container">
+          <textarea
+            ref={titleTextareaRef}
+            className="static-note-title"
+            value={activeMode === 'none' ? (selectedNote?.title || '') : (activeMode === 'feynman' ? 'Feynman Method' : 'Blurt Session')}
+            placeholder="Untitled"
+            readOnly={activeMode !== 'none'}
+            rows={1}
+            onChange={(e) => {
+              if (activeMode !== 'none') return;
+              const newTitle = e.target.value;
+              e.target.style.height = 'auto';
+              e.target.style.height = `${e.target.scrollHeight}px`;
+              setEditorContentRef.current(editor.getJSON(), newTitle);
+              triggerSave(editor.getJSON(), newTitle);
+            }}
+          />
+          <EditorContent editor={activeMode === 'none' ? editor : focusEditor} />
 
           {evaluationResults && (
             <div className="evaluation-results-panel">
@@ -462,27 +483,6 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
               </div>
             </div>
           )}
-        </>
-      )}
-      <div className={`editor-wrapper ${activeMode !== 'none' ? 'focus-active' : ''}`}>
-        <div className="note-body-container">
-          <textarea
-            ref={titleTextareaRef}
-            className="static-note-title"
-            value={activeMode === 'none' ? (selectedNote?.title || '') : (activeMode === 'feynman' ? 'Feynman Method' : 'Blurt Session')}
-            placeholder="Untitled"
-            readOnly={activeMode !== 'none'}
-            rows={1}
-            onChange={(e) => {
-              if (activeMode !== 'none') return;
-              const newTitle = e.target.value;
-              e.target.style.height = 'auto';
-              e.target.style.height = `${e.target.scrollHeight}px`;
-              setEditorContentRef.current(editor.getJSON(), newTitle);
-              triggerSave(editor.getJSON(), newTitle);
-            }}
-          />
-          <EditorContent editor={activeMode === 'none' ? editor : focusEditor} />
         </div>
       </div>
     </>
