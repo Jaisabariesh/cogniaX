@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { API_URL } from './config';
 
 const FolderRow = React.memo(({ folder, depth, isExpanded, onToggle, onAddNote, onAddFolder, onRename, onDelete, onDragStart, onDragOver, onDrop, onDragEnd }) => {
 
@@ -128,8 +129,8 @@ const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) =
       const authHeader = { headers: { Authorization: `Bearer ${token}` } };
       
       const [fRes, nRes] = await Promise.all([
-        axios.get(`http://localhost:3000/folders/${vaultId}`, authHeader),
-        axios.get(`http://localhost:3000/notes`, authHeader)
+        axios.get(`${API_URL}/folders/${vaultId}`, authHeader),
+        axios.get(`${API_URL}/notes`, authHeader)
 
       ]);
       setFolders(fRes.data);
@@ -162,7 +163,7 @@ const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) =
     if (!name) return;
     try {
       const token = Cookies.get('sb-access-token');
-      await axios.post(`http://localhost:3000/folders`, {
+      await axios.post(`${API_URL}/folders`, {
         vault_id: vaultId,
         parent_id: parentId,
         name,
@@ -182,7 +183,7 @@ const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) =
     if (!title) return;
     try {
       const token = Cookies.get('sb-access-token');
-      const res = await axios.post(`http://localhost:3000/notes`, {
+      const res = await axios.post(`${API_URL}/notes`, {
 
         vault_id: vaultId,
         folder_id: folderId,
@@ -205,7 +206,7 @@ const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) =
     if (!window.confirm('Delete this note?')) return;
     try {
       const token = Cookies.get('sb-access-token');
-      await axios.delete(`http://localhost:3000/notes/${id}`, {
+      await axios.delete(`${API_URL}/notes/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -219,7 +220,7 @@ const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) =
     if (!newName || newName === currentName) return;
     try {
       const token = Cookies.get('sb-access-token');
-      await axios.patch(`http://localhost:3000/folders/${id}`, {
+      await axios.patch(`${API_URL}/folders/${id}`, {
         name: newName
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -235,7 +236,7 @@ const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) =
     if (!window.confirm('Delete this folder and ALL its contents?')) return;
     try {
       const token = Cookies.get('sb-access-token');
-      await axios.delete(`http://localhost:3000/folders/${id}`, {
+      await axios.delete(`${API_URL}/folders/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -330,9 +331,9 @@ const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) =
 
       if (dropZone === 'inside') {
         if (dragged.type === 'folder') {
-          await axios.patch(`http://localhost:3000/folders/${dragged.id}/move`, { parent_id: target.id }, authHeader);
+          await axios.patch(`${API_URL}/folders/${dragged.id}/move`, { parent_id: target.id }, authHeader);
         } else {
-          await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: target.id }, authHeader);
+          await axios.patch(`${API_URL}/notes/${dragged.id}/move`, { folder_id: target.id }, authHeader);
         }
       } else {
         const newContainerId = target.type === 'folder' ? target.parent_id : target.folder_id;
@@ -359,9 +360,9 @@ const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) =
         const oldContainerId = dragged.type === 'folder' ? dragged.parent_id : dragged.folder_id;
         if (oldContainerId !== newContainerId) {
           if (dragged.type === 'folder') {
-            await axios.patch(`http://localhost:3000/folders/${dragged.id}/move`, { parent_id: newContainerId || null }, authHeader);
+            await axios.patch(`${API_URL}/folders/${dragged.id}/move`, { parent_id: newContainerId || null }, authHeader);
           } else {
-            await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: newContainerId || null }, authHeader);
+            await axios.patch(`${API_URL}/notes/${dragged.id}/move`, { folder_id: newContainerId || null }, authHeader);
           }
         }
 
@@ -445,9 +446,9 @@ const FolderTree = ({ vaultId, onSelectNote, selectedNote, searchQuery = '' }) =
             const token = Cookies.get('sb-access-token');
             const authHeader = { headers: { Authorization: `Bearer ${token}` } };
             if (dragged.type === 'folder') {
-              await axios.patch(`http://localhost:3000/folders/${dragged.id}/move`, { parent_id: null }, authHeader);
+              await axios.patch(`${API_URL}/folders/${dragged.id}/move`, { parent_id: null }, authHeader);
             } else {
-              await axios.patch(`http://localhost:3000/notes/${dragged.id}/move`, { folder_id: null }, authHeader);
+              await axios.patch(`${API_URL}/notes/${dragged.id}/move`, { folder_id: null }, authHeader);
             }
             fetchData();
           } catch (err) { console.error('Root drop error:', err); }

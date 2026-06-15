@@ -1,5 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap');
 
+/* === Vault Page Scroll Overrides === */
+html.vault-page-active,
+html.vault-page-active body {
+  overflow: auto !important;
+  height: auto !important;
+  min-height: 100% !important;
+}
+
+html.vault-page-active #root {
+  height: auto !important;
+  overflow: visible !important;
+}
+
 :root {
   --bg-color: #121212;
   --card-bg: #1a1a1a;
@@ -7,8 +20,8 @@
   --border-color: #262626;
   --text-primary: #ffffff;
   --text-secondary: #a3a3a3;
-  --accent-color: #22c55e;
-  --accent-hover: #16a34a;
+  --accent-color: #2563EB;
+  --accent-hover: #1D4ED8;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -32,7 +45,7 @@
 }
 
 .vault-home-header h1 {
-  font-family: 'PT Serif', serif;
+  font-family: 'Inter', sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 8px;
@@ -94,7 +107,7 @@
 
 .vault-card:hover .vault-icon {
   color: var(--accent-color);
-  background: rgba(34, 197, 94, 0.1);
+  background: rgba(37, 99, 235, 0.1);
 }
 
 .vault-info h3 {
@@ -251,7 +264,7 @@
 }
 
 .settings-header h2 {
-  font-family: 'PT Serif', serif;
+  font-family: 'Inter', sans-serif;
   font-size: 1.5rem;
   margin: 0;
 }

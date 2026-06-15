@@ -7,8 +7,8 @@
   --input-border: #333333;
   --text-primary: #ffffff;
   --text-secondary: #a3a3a3;
-  --accent-color: #22c55e;
-  --accent-hover: #16a34a;
+  --accent-color: #2563EB;
+  --accent-hover: #1D4ED8;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -76,7 +76,7 @@ body {
 }
 
 .auth-title {
-  font-family: 'PT Serif', serif;
+  font-family: 'Inter', sans-serif;
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 8px 0;
@@ -148,7 +148,7 @@ body {
 .btn-primary:hover {
   background-color: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.2);
 }
 
 .btn-secondary {

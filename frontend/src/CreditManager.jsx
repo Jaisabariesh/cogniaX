@@ -51,41 +51,36 @@ const CreditManager = ({ uid, refreshKey }) => {
 
       // 2. CREATE ORDER (Backend)
       const token = Cookies.get('sb-access-token');
-      const orderRes = await axios.post(`${API_URL}/create-razorpay-order`, 
+      const orderRes = await axios.post(`${API_URL}/api/create-order`, 
         { amount: topupAmount },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-
-
-      if (!orderRes.data?.id) {
+      if (!orderRes.data?.order_id) {
         throw new Error(orderRes.data?.detail || 'Order creation failed');
       }
 
-      const { id: order_id, amount, currency, key_id } = orderRes.data;
+      const { order_id, amount, currency, key_id } = orderRes.data;
       console.log('✅ Order created:', order_id, 'using Key:', key_id);
 
       // 3. CHECKOUT (Frontend)
       const options = {
-        key: key_id || RAZORPAY_KEY_ID, // Use backend key if available, fallback to config
+        key: key_id || RAZORPAY_KEY_ID,
         amount: amount,
         currency: currency,
-        name: 'LUNA',
+        name: 'CogniaX',
         description: `Top up Credits`,
         order_id: order_id, 
         handler: async (response) => {
           try {
             const token = Cookies.get('sb-access-token');
-            const verifyRes = await axios.post(`${API_URL}/verify-payment`, {
+            const verifyRes = await axios.post(`${API_URL}/api/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              creditsToAdd: topupAmount, 
             }, {
-
               headers: { Authorization: `Bearer ${token}` }
             });
-
 
             if (verifyRes.data.success) {
               fetchCredits();
@@ -100,15 +95,23 @@ const CreditManager = ({ uid, refreshKey }) => {
             setLoading(false);
           }
         },
-        theme: { color: '#007aff' },
+        theme: { color: '#003366' },
         modal: {
           ondismiss: () => {
+            console.log('Payment modal dismissed by user');
             setLoading(false);
-          }
+          },
+          escape: true,
+          backdropclose: false
         }
       };
 
       const paymentObject = new window.Razorpay(options);
+      paymentObject.on('payment.failed', function (response) {
+        console.error('Payment failed:', response.error);
+        alert(`Payment Failed: ${response.error.description}`);
+        setLoading(false);
+      });
       paymentObject.open();
     } catch (err) {
       console.error('Topup error:', err);
@@ -188,9 +191,10 @@ const CreditManager = ({ uid, refreshKey }) => {
       maxWidth: '400px',
       background: '#121212',
       border: '1px solid #2a2a2a',
-      borderRadius: '4px',
-      boxShadow: 'var(--shadow-lg)',
+      borderRadius: '8px',
+      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
       overflow: 'hidden',
+      fontFamily: '"Inter", sans-serif',
     },
     modalHeader: {
       padding: '24px 24px 16px',
@@ -271,14 +275,16 @@ const CreditManager = ({ uid, refreshKey }) => {
     payBtn: (disabled) => ({
       width: '100%',
       padding: '16px',
-      background: disabled ? '#333' : '#fff',
-      color: disabled ? '#666' : '#000',
+      background: disabled ? '#333' : '#003366',
+      color: '#fff',
       border: 'none',
-      borderRadius: '4px',
+      borderRadius: '6px',
       fontSize: '14px',
       fontWeight: '700',
       cursor: disabled ? 'not-allowed' : 'pointer',
       transition: 'all 0.15s',
+      fontFamily: '"Inter", sans-serif',
+      letterSpacing: '0.025em',
     }),
   };
 

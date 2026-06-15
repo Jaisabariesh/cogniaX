@@ -4,16 +4,16 @@
   --bg-sidebar: #111113;
   --bg-header: #1B1B1B;
   --bg-hover: #222222;
-  --bg-active: rgba(163, 124, 244, 0.1);
+  --bg-active: rgba(37, 99, 235, 0.1);
   
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
   --text-tertiary: #71717a;
   --text-dim: #3f3f46;
   
-  --accent: #bc9fff;
-  --accent-light: #d1bfff;
-  --accent-glow: rgba(163, 124, 244, 0.2);
+  --accent: #2563EB;
+  --accent-light: #60A5FA;
+  --accent-glow: rgba(37, 99, 235, 0.2);
   --error: #ef4444;
   --success: #22c55e;
   
@@ -86,9 +86,9 @@ html, body {
 }
 
 .main-eval-btn {
-  background: rgba(163, 124, 244, 0.1);
-  color: #C0A3F8;
-  border: 1px solid rgba(163, 124, 244, 0.2);
+  background: rgba(37, 99, 235, 0.1);
+  color: #60A5FA;
+  border: 1px solid rgba(37, 99, 235, 0.2);
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 0.8rem;
@@ -130,7 +130,7 @@ html, body {
       .score-value {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #C0A3F8;
+        color: #2563EB;
         line-height: 1;
       }
       .score-label {
@@ -522,7 +522,7 @@ html, body {
   transition: all 0.3s ease;
   
   &:hover {
-    border-color: rgba(163, 123, 244, 0.3);
+    border-color: rgba(37, 99, 235, 0.3);
   }
   
   h3 {

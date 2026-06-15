@@ -1,2 +1,2 @@
-export const API_URL = 'http://localhost:3000';
-export const RAZORPAY_KEY_ID = 'rzp_test_St7rz2tGEXjWuY';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_T1tOxhXyCDOUJX';

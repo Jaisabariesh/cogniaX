@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { API_URL } from './config';
 import { EditorContent, useEditor } from '@tiptap/react';
 
 // Core Tiptap Extensions
@@ -191,7 +192,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
     setEditorState('saving');
     try {
       const token = Cookies.get('sb-access-token');
-      await axios.patch(`http://localhost:3000/notes/${note.id}`, {
+      await axios.patch(`${API_URL}/notes/${note.id}`, {
         title: titleText,
         content: contentJson
       }, {
@@ -310,7 +311,7 @@ const TipTap = ({ selectedNote, selectedNoteContent, setEditorContent, activeMod
       console.log('----------------------------------------');
 
       const token = Cookies.get('sb-access-token');
-      const response = await axios.post('http://localhost:3000/evaluate-session', {
+      const response = await axios.post(`${API_URL}/evaluate-session`, {
         originalText: llmSource,
         recallText: llmRecall,
         mode: activeMode

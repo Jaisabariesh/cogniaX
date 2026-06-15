@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { API_URL } from './config';
 import TipTap from './TipTap';
 import Sidebar from './sidebar';
 import TopBar from './TopBar';
@@ -28,7 +29,7 @@ const ParentComponent = () => {
     const fetchVaultInfo = async () => {
       try {
         const token = Cookies.get('sb-access-token');
-        const res = await axios.get(`http://localhost:3000/vaults`, {
+        const res = await axios.get(`${API_URL}/vaults`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 

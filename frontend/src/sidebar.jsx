@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { API_URL } from './config';
 import FolderTree from './FolderTree';
 
 import './sidebar.css';
@@ -39,7 +40,7 @@ const Sidebar = ({ uid, selectedVaultId, vaultName, setSelectedNoteContent, setS
       // Fetch fresh content from DB with auth — the cache-bust ?t= param prevents
       // browser caching, and the Authorization header satisfies the backend middleware.
       const token = Cookies.get('sb-access-token');
-      const res = await axios.get(`http://localhost:3000/notes/${note.id}?t=${Date.now()}`, {
+      const res = await axios.get(`${API_URL}/notes/${note.id}?t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSelectedNoteContent(res.data.content);

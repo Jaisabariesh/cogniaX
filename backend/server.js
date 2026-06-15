@@ -4,7 +4,10 @@ const { Pool } = require('pg');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+const dotenv = require('dotenv');
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: path.resolve(__dirname, '../.env') });
+}
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
@@ -34,7 +37,7 @@ if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
 // const activeOrders = new Map(); // Removed: Replaced with DB persistence
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Security Middleware
 app.use(helmet()); // Basic security headers
@@ -62,16 +65,23 @@ app.use(globalLimiter); // Apply global rate limiter
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 
-const pool = new Pool({
+const poolConfig = {
   user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'cognia',
-  password: process.env.DB_PASSWORD || 'jai@2009',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  max: 20, // Increase max connections
+  password: process.env.DB_PASSWORD,
+  max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
-});
+};
+
+if (process.env.DB_SOCKET_PATH) {
+  poolConfig.host = process.env.DB_SOCKET_PATH;
+} else {
+  poolConfig.host = process.env.DB_HOST || 'localhost';
+  poolConfig.port = parseInt(process.env.DB_PORT || '5432', 10);
+}
+
+const pool = new Pool(poolConfig);
 
 pool.connect((err, client, release) => {
   if (err) {
@@ -79,15 +89,31 @@ pool.connect((err, client, release) => {
   }
   console.log('✅ Connected to PostgreSQL!');
   
-  // Ensure pending_orders table exists for Razorpay transactions
-  client.query(`
+  // Ensure necessary tables exist
+  const initSchema = `
+    CREATE TABLE IF NOT EXISTS users (
+      uid TEXT PRIMARY KEY,
+      credits NUMERIC(10, 4) DEFAULT 50.0000,
+      last_credit_reset TIMESTAMP DEFAULT NOW()
+    );
+
     CREATE TABLE IF NOT EXISTS pending_orders (
       order_id TEXT PRIMARY KEY,
-      uid UUID NOT NULL,
+      uid TEXT NOT NULL,
       amount_paise INTEGER NOT NULL,
       created_at TIMESTAMP DEFAULT NOW()
     );
-  `).catch(e => console.error('❌ Could not create pending_orders table:', e));
+
+    CREATE TABLE IF NOT EXISTS credit_transactions (
+      id SERIAL PRIMARY KEY,
+      uid TEXT NOT NULL,
+      amount_credits NUMERIC(10, 4) NOT NULL,
+      razorpay_order_id TEXT,
+      razorpay_payment_id TEXT,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+  `;
+  client.query(initSchema).catch(e => console.error('❌ Could not initialize schema:', e));
   
   release();
 });
@@ -581,14 +607,15 @@ app.post('/use-credit', authenticateUser, async (req, res) => {
 });
 
 
-app.post('/create-razorpay-order', authenticateUser, sensitiveLimiter, async (req, res) => {
+app.post('/api/create-order', authenticateUser, sensitiveLimiter, async (req, res) => {
   try {
     const { amount } = req.body;
     const uid = req.user.id;
+    
+    // Validate amount (minimum 100 paise = ₹1)
     if (!amount || isNaN(amount) || amount < 1 || amount > 100000) {
       return res.status(400).json({ error: 'Valid amount between ₹1 and ₹100,000 is required' });
     }
-
 
     // ENSURE PAISÉ (Integer Only)
     const amountPaise = Math.round(parseFloat(amount) * 100);
@@ -612,9 +639,8 @@ app.post('/create-razorpay-order', authenticateUser, sensitiveLimiter, async (re
     await pool.query("DELETE FROM pending_orders WHERE created_at < NOW() - INTERVAL '30 minutes'");
 
     console.log(`✅ Razorpay order created for ${uid}:`, JSON.stringify(order, null, 2));
-    console.log(`🔑 Using Key ID: ${process.env.RAZORPAY_KEY_ID}`);
     res.json({
-      id: order.id,
+      order_id: order.id,
       amount: order.amount,
       currency: order.currency,
       key_id: process.env.RAZORPAY_KEY_ID
@@ -628,7 +654,7 @@ app.post('/create-razorpay-order', authenticateUser, sensitiveLimiter, async (re
   }
 });
 
-app.post('/verify-payment', authenticateUser, sensitiveLimiter, async (req, res) => {
+app.post('/api/verify-payment', authenticateUser, sensitiveLimiter, async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
   const uid = req.user.id;
 
@@ -667,20 +693,23 @@ app.post('/verify-payment', authenticateUser, sensitiveLimiter, async (req, res)
       client = await pool.connect();
       await client.query('BEGIN');
       
-      const creditsToAdd = Math.round(trackedOrder.amount_paise / 100);
-      const credits = parseInt(creditsToAdd); // PURE INTEGER
+      const creditsToAdd = parseFloat(trackedOrder.amount_paise / 100).toFixed(4);
       const result = await client.query(
         `INSERT INTO users (uid, credits, last_credit_reset)
          VALUES ($1, $2, NOW())
          ON CONFLICT (uid)
-         DO UPDATE SET credits = users.credits + EXCLUDED.credits
+         DO UPDATE SET credits = users.credits + $2
          RETURNING credits`,
-        [uid.trim(), credits]
+        [uid, creditsToAdd]
       );
+      
+      const FinalRemainingCredits = result.rows[0].credits;
+      
+      console.log(`✅ Credits added: ${creditsToAdd}, New Balance: ${FinalRemainingCredits}`);
 
       await client.query(
         'INSERT INTO credit_transactions (uid, amount_credits, razorpay_order_id, razorpay_payment_id) VALUES ($1, $2, $3, $4)',
-        [uid, credits, razorpay_order_id, razorpay_payment_id]
+        [uid, creditsToAdd, razorpay_order_id, razorpay_payment_id]
       );
 
       // Successfully processed: cleanup
@@ -698,7 +727,7 @@ app.post('/verify-payment', authenticateUser, sensitiveLimiter, async (req, res)
     }
   } else {
     console.warn(`❌ Invalid signature for order ${razorpay_order_id}`);
-    res.status(400).json({ error: 'Invalid signature' });
+    res.status(400).json({ error: 'Invalid signature mismatch' });
   }
 });
 
@@ -782,7 +811,7 @@ app.post('/evaluate-session', authenticateUser, sensitiveLimiter, async (req, re
 
     // 2. Call Gemini API
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       generationConfig: { responseMimeType: "application/json" }
     });
 

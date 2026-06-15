@@ -3,9 +3,21 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { supabase } from './supabase';
+import { API_URL } from './config';
 import './VaultHome.css';
 
 const VaultHome = () => {
+    useEffect(() => {
+        // Force scrollability on the vault page
+        document.documentElement.classList.add('vault-page-active');
+        document.body.classList.add('vault-page-active');
+
+        return () => {
+            document.documentElement.classList.remove('vault-page-active');
+            document.body.classList.remove('vault-page-active');
+        };
+    }, []);
+
     const { uid } = useParams();
     const navigate = useNavigate();
     const [vaults, setVaults] = useState([]);
@@ -56,7 +68,7 @@ const VaultHome = () => {
     const fetchVaults = useCallback(async () => {
         try {
             const token = Cookies.get('sb-access-token');
-            const res = await axios.get(`http://localhost:3000/vaults`, {
+            const res = await axios.get(`${API_URL}/vaults`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setVaults(res.data);
@@ -72,7 +84,7 @@ const VaultHome = () => {
         if (!newVaultName.trim()) return;
         try {
             const token = Cookies.get('sb-access-token');
-            const res = await axios.post(`http://localhost:3000/vaults`, 
+            const res = await axios.post(`${API_URL}/vaults`, 
                 { name: newVaultName },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -88,7 +100,7 @@ const VaultHome = () => {
         if (!window.confirm('Are you sure you want to delete this vault? This action cannot be undone.')) return;
         try {
             const token = Cookies.get('sb-access-token');
-            await axios.delete(`http://localhost:3000/vaults/${id}`, {
+            await axios.delete(`${API_URL}/vaults/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setVaults(vaults.filter(v => v.id !== id));
@@ -111,8 +123,8 @@ const VaultHome = () => {
     return (
         <div className="vault-home-container">
             <header className="vault-home-header">
-                <h1>Knowledge Vaults</h1>
-                <p>Welcome back. Select a vault to continue your research or create a new workspace.</p>
+                <h1>Cognitive Vaults</h1>
+                <p>Your cognitive architecture. Synthesis, simulation, and structured research start here.</p>
             </header>
 
             <main className="vault-grid-section">
@@ -123,7 +135,7 @@ const VaultHome = () => {
                                 type="text" 
                                 value={newVaultName}
                                 onChange={(e) => setNewVaultName(e.target.value)}
-                                placeholder="Workspace Name..."
+                                placeholder="New Vault Name..."
                             />
                             <button type="submit">Create New Vault</button>
                         </form>
@@ -190,9 +202,9 @@ const VaultHome = () => {
                         <div className="settings-content">
                             {activeTab === 'about' && (
                                 <div className="tab-pane about-pane">
-                                    <h3>NoteBlurt v1.0</h3>
+                                    <h3>LUNA v1.0</h3>
                                     <p style={{color: '#a3a3a3', lineHeight: '1.6'}}>A high-performance workspace designed for intellectual synthesis and scientific capture.</p>
-                                    <p style={{color: '#525252', fontSize: '0.8rem', marginTop: '40px'}}>© 2026 NoteBlurt Laboratories</p>
+                                    <p style={{color: '#525252', fontSize: '0.8rem', marginTop: '40px'}}>© 2026 LUNA Interactive</p>
                                 </div>
                             )}
                             {activeTab === 'account' && (
