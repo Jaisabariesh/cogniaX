@@ -9,12 +9,13 @@ import ParentComponent from './LUNA.jsx'
 import VaultHome from './VaultHome.jsx'
 import ChangePassword from './ChangePassword.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
+import LandingPage from './LandingPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route
           path="/change-password"

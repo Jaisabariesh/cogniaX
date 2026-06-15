@@ -10,8 +10,8 @@ const ChangePassword = () => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // 'error' or 'success'
   const [loading, setLoading] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
   const [userId, setUserId] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -73,10 +73,7 @@ const ChangePassword = () => {
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
-        // Optionally navigate after a delay
-        setTimeout(() => {
-            navigate(`/${userId}`);
-        }, 2000);
+        setTimeout(() => navigate(`/${userId}`), 2000);
       }
     } catch (err) {
       console.error('Unexpected error during password change:', err);
@@ -91,7 +88,7 @@ const ChangePassword = () => {
     <div className="change-pwd-body">
       <div className="change-pwd-card">
         <h1 className="change-pwd-title">Change Password</h1>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
           <input
             type="password"
             placeholder="Current Password"
@@ -117,7 +114,7 @@ const ChangePassword = () => {
             required
           />
           <button type="submit" className="change-pwd-btn" disabled={loading}>
-            {loading ? 'Processing...' : 'Change Password'}
+            {loading ? 'Processing...' : 'Update Password'}
           </button>
         </form>
         {message && <p className={`change-pwd-msg ${messageType}`}>{message}</p>}
@@ -134,3 +131,4 @@ const ChangePassword = () => {
 };
 
 export default ChangePassword;
+
